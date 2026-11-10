@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections import OrderedDict
 import math
 from dataclasses import dataclass
 
@@ -98,17 +99,45 @@ def _draws(theta, M, base_seed):
     return [th.stack(x).to(dev) for x in (PU, UU, CU, JN)]
 
 
-def sample_points(theta: th.Tensor, M: int, base_seed: int, chunk: int = 64) -> Samples:
-    """50% near-surface (Newton-projected candidates, best |f|, + N(0, 0.02 s) jitter), 50% uniform in
-    the 25%-padded bbox. Random draws come from a generator seeded by each theta's values."""
+# Sampling is a pure function of (θ, M, seed), and the same θ is sampled again and again (θ_A against
+# every transform / path point / restart). Both caches return exactly what a fresh call would.
+SAMPLE_CACHE_MAX_BYTES = 2 << 30
+BBOX_CACHE_MAX = 500_000
+_SAMPLE_CACHE: "OrderedDict[tuple, th.Tensor]" = OrderedDict()
+_BBOX_CACHE: "OrderedDict[tuple, tuple]" = OrderedDict()
+_cache_bytes = [0]
+CACHE_STATS = dict(requests=0, computed=0, bbox_computed=0)
+
+
+def clear_caches():
+    _SAMPLE_CACHE.clear()
+    _BBOX_CACHE.clear()
+    _cache_bytes[0] = 0
+
+
+def _bbox_cached(tb, PU, bkeys):
+    """Padded local bbox per theta; the probe draws do not depend on M, so one θ sampled at several M
+    shares its bbox."""
+    need = [j for j, k in enumerate(bkeys) if k not in _BBOX_CACHE]
+    if need:
+        lo, hi = local_bbox(tb[need], PU[need])
+        CACHE_STATS["bbox_computed"] += len(need)
+        for n_, j in enumerate(need):
+            _BBOX_CACHE[bkeys[j]] = (lo[n_], hi[n_])
+    got = [_BBOX_CACHE[k] for k in bkeys]
+    while len(_BBOX_CACHE) > BBOX_CACHE_MAX:
+        _BBOX_CACHE.popitem(last=False)
+    return th.stack([g[0] for g in got]), th.stack([g[1] for g in got])
+
+
+def _sample_uncached(theta, M, base_seed, bkeys, chunk):
     B = theta.shape[0]
     n_s = M // 2
     out = th.empty(B, M, 3, device=theta.device)
-    theta = theta.detach()
     for sl in _chunks(B, chunk):
         tb = theta[sl]
         PU, UU, CU, JN = _draws(tb, M, base_seed)
-        lo, hi = local_bbox(tb, PU)
+        lo, hi = _bbox_cached(tb, PU, bkeys[sl])
         ext = (hi - lo)[:, None]
         uni = lo[:, None] + UU * ext
         cand = project_to_surface(lo[:, None] + CU * ext, tb)
@@ -118,7 +147,42 @@ def sample_points(theta: th.Tensor, M: int, base_seed: int, chunk: int = 64) -> 
         surf = th.gather(cand, 1, idx[..., None].expand(-1, -1, 3))
         surf = surf + JN * 0.02 * scale_of(tb)[:, None, None]
         out[sl] = to_world(th.cat([surf, uni], 1), tb)
-    return Samples(out, n_s)
+    return out
+
+
+def sample_points(theta: th.Tensor, M: int, base_seed: int, chunk: int = 64) -> Samples:
+    """50% near-surface (Newton-projected candidates, best |f|, + N(0, 0.02 s) jitter), 50% uniform in
+    the 25%-padded bbox. Random draws come from a generator seeded by each theta's values.
+    Results are memoised per exact (θ, M, seed); repeats inside one call are computed once."""
+    theta = theta.detach()
+    B = theta.shape[0]
+    dev = str(theta.device)
+    arr = np.ascontiguousarray(theta.cpu().numpy())
+    raw = [arr[b].tobytes() for b in range(B)]
+    keys = [(r, M, base_seed, dev) for r in raw]
+    CACHE_STATS["requests"] += B
+    local, miss = {}, []
+    for b, k in enumerate(keys):
+        if k in local:
+            continue
+        hit = _SAMPLE_CACHE.get(k)
+        if hit is not None:
+            _SAMPLE_CACHE.move_to_end(k)
+            local[k] = hit
+        else:
+            local[k] = None
+            miss.append(b)
+    if miss:
+        pts = _sample_uncached(theta[miss], M, base_seed, [(raw[b], base_seed, dev) for b in miss], chunk)
+        CACHE_STATS["computed"] += len(miss)
+        for n_, b in enumerate(miss):
+            local[keys[b]] = pts[n_]
+            _SAMPLE_CACHE[keys[b]] = pts[n_].clone()
+            _cache_bytes[0] += M * 12
+        while _cache_bytes[0] > SAMPLE_CACHE_MAX_BYTES and _SAMPLE_CACHE:
+            _, old = _SAMPLE_CACHE.popitem(last=False)
+            _cache_bytes[0] -= old.numel() * 4
+    return Samples(th.stack([local[k] for k in keys]), M // 2)
 
 
 def project_to_surface(q: th.Tensor, theta: th.Tensor, steps: int = 4) -> th.Tensor:
@@ -289,12 +353,11 @@ def string_relax(rawA, rawB, K=9, iters=60, lr=0.05, M=2048, seed=0, chunk=64):
             seg = (path_raw[:, 1:] - path_raw[:, :-1]).norm(dim=-1)
             cum = th.cat([th.zeros(Bn, 1, device=seg.device), seg.cumsum(1)], 1)
             tgt = th.linspace(0, 1, K, device=seg.device)[None] * cum[:, -1:]
-            new = path_raw.clone()
-            for b in range(Bn):
-                idx = th.searchsorted(cum[b].contiguous(), tgt[b].contiguous()).clamp(1, K - 1)
-                c0, c1 = cum[b, idx - 1], cum[b, idx]
-                w = ((tgt[b] - c0) / (c1 - c0).clamp_min(1e-9))[:, None]
-                new[b] = (1 - w) * path_raw[b, idx - 1] + w * path_raw[b, idx]
+            idx = th.searchsorted(cum.contiguous(), tgt.contiguous()).clamp(1, K - 1)  # (B,K), batched
+            c0, c1 = th.gather(cum, 1, idx - 1), th.gather(cum, 1, idx)
+            w = ((tgt - c0) / (c1 - c0).clamp_min(1e-9))[..., None]
+            ex = idx[..., None].expand(-1, -1, 14)
+            new = (1 - w) * th.gather(path_raw, 1, ex - 1) + w * th.gather(path_raw, 1, ex)
             new[:, 0], new[:, -1] = rawA, rawB
             path_raw = new
     return P.var_to_param(path_raw)

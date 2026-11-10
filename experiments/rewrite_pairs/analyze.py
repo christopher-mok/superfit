@@ -82,18 +82,12 @@ def _rule_id(s):
 
 
 def extract_rules(cfg, rd, reg, transform_classes, log):
-    df, pairs = consolidate(rd, cfg.dedup_tol)
+    df, pairs = consolidate(rd, cfg.dedup_tol, transform_classes)
     if len(pairs) == 0:
         rd.save_json("rules.json", [])
         log("phase5: no pairs")
         return []
     pairs = pairs.copy()
-    # finalise kinds for hills with a Phase-1 transform
-    hill = pairs.kind != "degenerate_valley"
-    for ix in pairs.index[hill]:
-        tid = pairs.at[ix, "transform_id"]
-        if pairs.at[ix, "phase"] != "assembly" and tid in (transform_classes or {}):
-            pairs.at[ix, "kind"] = transform_classes[tid] if transform_classes[tid] in ("exact", "conditional") else "approximate"
     rules = []
     groups = {}
     for ix, r in pairs.iterrows():
@@ -113,7 +107,7 @@ def extract_rules(cfg, rd, reg, transform_classes, log):
         if tid is not None:
             t = reg[tid]
             mp = {"group": "group", "analytic": "analytic", "perm": "group", "wrap": "group"}.get(t.kind, t.kind)
-        elif len(g) >= 2 or True:
+        else:
             # distil an executable map for transform-less groups
             spec = [json.loads(s) if isinstance(s, str) else (s or {}) for s in g.transform_spec]
             axes = [s.get("axis") for s in spec if s.get("axis") is not None and s.get("angle") is not None]

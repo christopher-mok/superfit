@@ -60,6 +60,14 @@ class LossCtx:
         self.asm, self.pts, self.target, self.sf, self.nu = asm, pts, target, sf, n_uniform
         with th.no_grad():
             self.f = eval_prims(asm.theta, pts)  # (n,N)
+        self._prefix = {}
+
+    def prefix(self, i):
+        """Union of the fixed primitives before slot i (constant during a replace-optimisation)."""
+        if i not in self._prefix:
+            with th.no_grad():
+                self._prefix[i] = union_sdf(self.f[:i], self.asm.k[: i - 1]) if i > 1 else self.f[0]
+        return self._prefix[i]
 
     def loss_full(self, theta, k=None):
         f = eval_prims(theta, self.pts)
@@ -74,7 +82,7 @@ class LossCtx:
         if i == 0:
             out = fi
         else:
-            pre = union_sdf(self.f[:i], k[: i - 1]) if i > 1 else self.f[0]
+            pre = self.prefix(i)
             out = _sdf_smooth_union_pair(pre[None].expand(C, -1), fi, k[i - 1].reshape(1, 1))
         for j in range(i + 1, self.asm.n):
             out = _sdf_smooth_union_pair(out, self.f[j][None].expand(C, -1), k[j - 1].reshape(1, 1))
@@ -353,11 +361,11 @@ def primitive_candidates(ctx, i, cfg, bank_ctx):
         loc[11:14] = 0
         qn = normalise_scale(loc[None])
         cq = float(qn[0, 3:6].amax() / loc[3:6].amax().clamp_min(1e-6))
-        Dq, (cA, VA, _) = desc.compute(qn)
+        Dq, (cA, VA, _) = desc.compute(qn, seed=cfg.seed)  # same seed as the stored bank frames
         d, nn, var = knn_variants(index, desc, Dq, min(cfg.knn_k, bank.shape[0]))
         cands = [(int(b), int(v)) for b, v in zip(nn[0].tolist(), var[0].tolist()) if b >= 0 and float(shape_dist(qn[0], bank[b])) > cfg.tau_far][:5]
         for b, v in cands:
-            _, (cB, VB, _) = desc.compute(bank[b:b + 1])
+            _, (cB, VB, _) = desc.compute(bank[b:b + 1], seed=cfg.seed)
             Rr, tr = initial_pose(cA, VA, cB, VB, Gs[v][None])
             RA = P.aa_to_R(a[None, 11:14])[0]
             nb = bank[b].clone()
@@ -451,12 +459,18 @@ def run(cfg, rd, reg, transform_classes, log):
             Lsw, _ = ctx.loss_full(sw)
             opps.append(dict(i=i, j=j, thB=sw, driver="prim_swap", spec=dict(swap=[i, j]), LA=float(L0), LB=float(Lsw), curve=None,
                              barrier=float("nan"), loss_barrier=float("nan"), tid="prim_swap"))
+        # the from-A arm (continued descent) is the same for every opportunity of this assembly, and the
+        # VarAxis arm only depends on the primitive: run each once (same seed => same result)
+        base_arm = optimise_assembly(ctx, asm.theta, cfg.assembly_K, cfg.assembly_lr, cfg.seed) if opps else None
+        varaxis_arm = {}
         for o in opps:
             i = o["i"]
             thetaB = o["thB"] if o["j"] is not None else asm.theta.clone().index_copy_(0, th.tensor([i], device=dev), o["thB"][None])
-            pa, La, Ia = optimise_assembly(ctx, asm.theta, cfg.assembly_K, cfg.assembly_lr, cfg.seed)
+            pa, La, Ia = base_arm
             pb, Lb, Ib = optimise_assembly(ctx, thetaB, cfg.assembly_K, cfg.assembly_lr, cfg.seed)
-            pv, Lv, Iv = optimise_assembly(ctx, asm.theta, cfg.assembly_K, cfg.assembly_lr, cfg.seed, varaxis_prim=i)
+            if i not in varaxis_arm:
+                varaxis_arm[i] = optimise_assembly(ctx, asm.theta, cfg.assembly_K, cfg.assembly_lr, cfg.seed, varaxis_prim=i)
+            pv, Lv, Iv = varaxis_arm[i]
             a_i = asm.theta[i]
             b_i = o["thB"][i] if o["j"] is not None else o["thB"]
             with th.no_grad():
@@ -473,7 +487,7 @@ def run(cfg, rd, reg, transform_classes, log):
                 pair_id=pid, phase="assembly", kind="exact" if o["tid"] == "prim_swap" else "approximate", driver=o["driver"],
                 mechanism_swap=mechanism_swap(a_i[None], b_i[None])[0], barrier_path="straight",
                 topology_a=ta, topology_b=tb, topology_class=G.topology_class(ta, tb), prim_class="SF", source=src,
-                sample_id=asm.name, theta_a_raw=ra_.cpu(), theta_b_raw=rb_.cpu(), theta_a=a_i.cpu(), theta_b=b_i.cpu(),
+                sample_id=f"{asm.name}:{i}", theta_a_raw=ra_.cpu(), theta_b_raw=rb_.cpu(), theta_a=a_i.cpu(), theta_b=b_i.cpu(),
                 transform_id=o["tid"], transform_spec=dict(o["spec"]), residual_after_transform=float("nan"),
                 d_geo=float(dgeo[0]), iou_ab=float(iou[0]), param_dist_raw=float(gd[0]), rot_geodesic=float(rg[0]),
                 barrier=o["barrier"], barrier_t=float("nan"), loss_barrier=o["loss_barrier"], barrier_neb=float("nan"),
@@ -483,7 +497,9 @@ def run(cfg, rd, reg, transform_classes, log):
                 delta_iou=Ib - Ia, delta_loss=Lb - La, curve_file=curve, qualifies=bool(beats),
                 fail_reason="" if beats else "does_not_beat_baselines",
             ))
-        rd.write_shard("assembly", k, rows)
+        samples = [dict(sample_id=f"{asm.name}:{i}", source=f"{source_name}:{i}", theta_raw=P.param_to_var(asm.theta[i:i + 1])[0].cpu(),
+                        theta_param=asm.theta[i].cpu()) for i in range(asm.n)]
+        rd.write_shard("assembly", k, rows, samples)
         report["assemblies"].append(dict(name=asm.name, category=asm.category, n_prims=asm.n, extraction_check=chk, target_mode=mode,
                                          loss0=float(L0), n_opps=len(opps), n_beat=sum(r["qualifies"] for r in rows)))
         log(f"phase4 {asm.name}: {asm.n} prims, {len(opps)} opportunities, {sum(r['qualifies'] for r in rows)} beat both baselines "

@@ -119,6 +119,8 @@ def main(argv=None):
         from . import analyze
         rd.save_json("config.json", {**rd.load_json("config.json"), "config": cfg.to_dict()})
         analyze.run(cfg, rd, reg, classes, log)
+    from .geometry import CACHE_STATS
+    log(f"sampling cache: {CACHE_STATS['requests']} requests, {CACHE_STATS['computed']} computed, {CACHE_STATS['bbox_computed']} bboxes computed")
     log(f"done in {time.time() - t0:.1f}s")
     return 0
 

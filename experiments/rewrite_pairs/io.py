@@ -165,8 +165,15 @@ def canonical_key(theta_raw: np.ndarray, tol: float) -> tuple:
     return tuple(np.round(t.numpy() / tol).astype(np.int64).tolist())
 
 
-def consolidate(rd: RunDir, tol: float):
+def consolidate(rd: RunDir, tol: float, transform_classes: dict | None = None):
     df = rd.read_rows()
+    if len(df) and transform_classes:
+        # Phase 1 rows are written before the exact/conditional classes exist: finalise `kind` here so
+        # pairs.parquet / candidates.parquet agree with rules.json.
+        m = (df.qualifies.astype(bool) & (df.kind != "degenerate_valley") & (df.phase != "assembly")
+             & df.transform_id.isin(list(transform_classes)))
+        df.loc[m, "kind"] = df.loc[m, "transform_id"].map(
+            lambda t: transform_classes[t] if transform_classes[t] in ("exact", "conditional") else "approximate")
     if len(df):
         keys = [canonical_key(a, tol) + canonical_key(b, tol) for a, b in zip(df.theta_a_raw, df.theta_b_raw)]
         df["_k"] = keys
