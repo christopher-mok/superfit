@@ -1,0 +1,71 @@
+{
+ "assemblies": [
+  {
+   "name": "synthetic_0",
+   "category": "synthetic",
+   "n_prims": 3,
+   "extraction_check": {
+    "max_err": 0.0
+   },
+   "target_mode": "synthetic_true_assembly",
+   "loss0": 0.04667239636182785,
+   "n_opps": 8,
+   "n_beat": 7
+  },
+  {
+   "name": "synthetic_1",
+   "category": "synthetic",
+   "n_prims": 4,
+   "extraction_check": {
+    "max_err": 0.0
+   },
+   "target_mode": "synthetic_true_assembly",
+   "loss0": 0.040971316397190094,
+   "n_opps": 5,
+   "n_beat": 5
+  },
+  {
+   "name": "synthetic_2",
+   "category": "synthetic",
+   "n_prims": 3,
+   "extraction_check": {
+    "max_err": 0.0
+   },
+   "target_mode": "synthetic_true_assembly",
+   "loss0": 0.04854567348957062,
+   "n_opps": 10,
+   "n_beat": 6
+  },
+  {
+   "name": "synthetic_3",
+   "category": "synthetic",
+   "n_prims": 4,
+   "extraction_check": {
+    "max_err": 0.0
+   },
+   "target_mode": "synthetic_true_assembly",
+   "loss0": 0.038982830941677094,
+   "n_opps": 17,
+   "n_beat": 10
+  },
+  {
+   "name": "synthetic_4",
+   "category": "synthetic",
+   "n_prims": 3,
+   "extraction_check": {
+    "max_err": 0.0
+   },
+   "target_mode": "synthetic_true_assembly",
+   "loss0": 0.04879458248615265,
+   "n_opps": 9,
+   "n_beat": 8
+  }
+ ],
+ "target_mode": {
+  "synthetic_0": "synthetic_true_assembly",
+  "synthetic_1": "synthetic_true_assembly",
+  "synthetic_2": "synthetic_true_assembly",
+  "synthetic_3": "synthetic_true_assembly",
+  "synthetic_4": "synthetic_true_assembly"
+ }
+}

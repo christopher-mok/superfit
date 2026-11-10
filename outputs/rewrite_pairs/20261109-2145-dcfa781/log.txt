@@ -1,0 +1,29 @@
+[21:45:41] run 20261109-2145-dcfa781 preset=dry device=cuda phases=['0', '1', '2', '3', '3b', '4', '5'] -> C:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2145-dcfa781
+[21:45:42] registry: 102 transforms after dedup
+[21:45:43] phase0: D(90�)=3.58e-04 D(45�)=0.067 metric_rel=0.008 varaxis_err={'Y': 4.172325134277344e-07, 'Z': 3.725290298461914e-07, 'X': 4.917383193969727e-07} ok=True
+[21:47:10] run 20261109-2145-dcfa781 preset=dry device=cuda phases=['1', '2', '3', '3b', '4', '5'] -> C:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2145-dcfa781
+[21:47:10] registry: 102 transforms after dedup
+[21:47:10] phase1: exact=2 conditional=96 none=4
+[21:48:35] phase2 shard 0: 35 minima evaluated, 35 pairs
+[21:56:04] phase3 shard 0: 184 compensated minima, 182 pairs
+[21:56:53] phase3 cmaes: 5 searches, 2 pairs
+[21:57:27] phase3b: bank 5000 shapes, descriptor dim 4096 -> 128 (faiss=False)
+[21:57:27] phase3b: 200 far, unexplained neighbour candidates to refine
+[21:58:04] phase3b: learned map learned:bulge↓|onion↑|roundness↓ support=5 R²=1.000
+[21:58:04] phase3b: learned map learned:onion↓|roundness↑|taper↓ support=5 R²=1.000
+[21:58:04] phase3b: learned map learned:onion↓|roundness↓|taper↑ support=6 R²=1.000
+[21:58:04] phase3b: learned map learned:onion↑|roundness↓|taper↑ support=6 R²=0.982
+[21:58:04] phase3b: learned map learned:bulge↓|onion↑|taper↓ support=6 R²=1.000
+[21:58:06] held-out onion_annulus__bulge_ring: rank=2 residual=0.0060854144394397736
+[21:58:07] held-out taper_flip: rank=1 residual=0.004306082148104906
+[21:58:07] held-out dilated_core_sphere__rounded_body: rank=None residual=None
+[21:58:08] phase3b: 135 pairs; topology classes {'same': 93, 'eps_equivalent': 34, 'different': 8}
+[22:00:15] phase4 synthetic_0: 3 prims, 8 opportunities, 7 beat both baselines (target=synthetic_true_assembly, extraction max_err=0.0)
+[22:02:46] phase4 synthetic_1: 4 prims, 5 opportunities, 5 beat both baselines (target=synthetic_true_assembly, extraction max_err=0.0)
+[22:04:58] phase4 synthetic_2: 3 prims, 10 opportunities, 6 beat both baselines (target=synthetic_true_assembly, extraction max_err=0.0)
+[22:08:03] phase4 synthetic_3: 4 prims, 17 opportunities, 10 beat both baselines (target=synthetic_true_assembly, extraction max_err=0.0)
+[22:10:12] phase4 synthetic_4: 3 prims, 9 opportunities, 8 beat both baselines (target=synthetic_true_assembly, extraction max_err=0.0)
+[22:10:15] phase5: 265 rules (77 degenerate-valley groups)
+[22:10:16] summary written: C:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2145-dcfa781\summary.md
+[22:10:16] sampling cache: 498390 requests, 264945 computed, 259775 bboxes computed
+[22:10:16] done in 1386.2s

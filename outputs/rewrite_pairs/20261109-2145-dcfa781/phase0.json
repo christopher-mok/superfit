@@ -1,0 +1,71 @@
+{
+ "checks": {
+  "raw_roundtrip_max_abs": 3.0994415283203125e-05,
+  "cube_D_90": 0.00035829906119033694,
+  "cube_D_45": 0.06666626781225204,
+  "cube_90_identity_ok": true,
+  "cube_45_hump_ok": true,
+  "metric_rel_diff_M_vs_Mcheck": 0.008016384206712246,
+  "metric_stable": true,
+  "bulge_zero_singular": {
+   "sdf_at_x0p4_bulge0": -0.0,
+   "sdf_at_x0p4_bulge_1em3": 0.1501922607421875,
+   "note": "sign(0)=0 in map_arc_bulge collapses x; samplers keep |bulge|>=1e-3"
+  },
+  "varaxis_fold_max_err": {
+   "Y": 4.172325134277344e-07,
+   "Z": 3.725290298461914e-07,
+   "X": 4.917383193969727e-07
+  },
+  "varaxis_fold_ok": true
+ },
+ "ranges": {
+  "tx": [
+   -0.9998999834060669,
+   0.9998999834060669
+  ],
+  "ty": [
+   -0.9998999834060669,
+   0.9998999834060669
+  ],
+  "tz": [
+   -0.9998999834060669,
+   0.9998999834060669
+  ],
+  "sx": [
+   9.999999747378752e-06,
+   1.999899983406067
+  ],
+  "sy": [
+   9.999999747378752e-06,
+   1.999899983406067
+  ],
+  "sz": [
+   9.999999747378752e-06,
+   1.999899983406067
+  ],
+  "roundness": [
+   0.0,
+   0.9999499917030334
+  ],
+  "dilate": [
+   0.0,
+   0.4999749958515167
+  ],
+  "taper": [
+   9.999999747378752e-06,
+   1.999899983406067
+  ],
+  "bulge": [
+   -1.999899983406067,
+   1.999899983406067
+  ],
+  "onion": [
+   0.0,
+   0.9999499917030334
+  ]
+ },
+ "varaxis_layouts": "batched_varaxis_sf_packed_eval: logits[11:14], rotation[14:17] (unpacked_params_varsf); batched_varaxis_sf_packed_eval_st: rotation[11:14], logits[14:17] (unpacked_params_sf). Weight order w0=identity('Y' in reinit), w1=perm[1,2,0]('Z'), w2=perm[2,0,1]('X').",
+ "squash": "algebraic tanh: p=(1-1e-4)*v/sqrt(1+v^2)*scale+offset on params[0:11]; rotation/logits raw",
+ "ok": true
+}

@@ -1,0 +1,122 @@
+{
+ "descriptor": {
+  "r180[00+]+bulge_flip": {
+   "recall_at_1": 0.625,
+   "recall_at_5": 0.78125
+  }
+ },
+ "held_out": {
+  "onion_annulus__bulge_ring": {
+   "rank": 2,
+   "residual": 0.0060854144394397736,
+   "n_partner_like_in_bank": 582,
+   "partner": [
+    0.0,
+    0.0,
+    0.0,
+    0.01829451695084572,
+    0.012713541276752949,
+    0.15846844017505646,
+    0.9182276725769043,
+    0.0449957512319088,
+    1.4152873754501343,
+    1.829269528388977,
+    0.05579856038093567,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "retrieval_pairs_with_partner_mechanism": [
+    "retrieval-b0001713-2a7b8ca0",
+    "retrieval-b0000666-b4614310",
+    "retrieval-b0001112-b99f21eb",
+    "retrieval-b0004193-54995bb5",
+    "retrieval-b0004193-06bc9b42",
+    "retrieval-b0002225-7766421d",
+    "retrieval-b0000575-4d56da5e",
+    "retrieval-b0004193-ba292abf",
+    "retrieval-b0000273-4dcf290f",
+    "retrieval-b0000666-2dce3e0e",
+    "retrieval-b0002225-76e675fd",
+    "retrieval-b0002113-964cfc61"
+   ]
+  },
+  "taper_flip": {
+   "rank": 1,
+   "residual": 0.004306082148104906,
+   "n_partner_like_in_bank": 2113,
+   "partner": [
+    0.0,
+    0.0,
+    0.0,
+    0.3644683063030243,
+    0.4891825020313263,
+    0.5522482991218567,
+    0.9789950847625732,
+    0.0007510634022764862,
+    1.417087197303772,
+    -0.01804651878774166,
+    0.09345638751983643,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "retrieval_pairs_with_partner_mechanism": [
+    "retrieval-b0004122-06bc9b42",
+    "retrieval-b0001706-e08493d4",
+    "retrieval-b0002641-232a7079",
+    "retrieval-b0001527-64740b7d",
+    "retrieval-b0001892-e6d67331",
+    "retrieval-b0002635-2a7b8ca0",
+    "retrieval-b0001713-2a7b8ca0",
+    "retrieval-b0001892-8f212f1d",
+    "retrieval-b0003182-7382dfea",
+    "retrieval-b0000435-54995bb5",
+    "retrieval-b0004122-29d5ed2a",
+    "retrieval-b0000626-3f152a26",
+    "retrieval-b0002695-11ef1a46",
+    "retrieval-b0000823-41003246",
+    "retrieval-b0000466-32876e3b",
+    "retrieval-b0001892-54995bb5",
+    "retrieval-b0001693-fb7b78eb",
+    "retrieval-b0001665-0d84cd65",
+    "retrieval-b0000857-4dcf290f",
+    "retrieval-b0000666-b4614310"
+   ]
+  },
+  "dilated_core_sphere__rounded_body": {
+   "rank": null,
+   "residual": null,
+   "n_partner_like_in_bank": 577,
+   "retrieval_pairs_with_partner_mechanism": [
+    "retrieval-b0004544-e270d00a",
+    "retrieval-b0002741-232a7079",
+    "retrieval-b0001922-0dc5ad33",
+    "retrieval-b0004122-29d5ed2a",
+    "retrieval-b0000626-3f152a26",
+    "retrieval-b0000435-ad036930",
+    "retrieval-b0001665-0d84cd65",
+    "retrieval-b0000857-4dcf290f",
+    "retrieval-b0001922-5b596e71",
+    "retrieval-b0003931-22c85606",
+    "retrieval-b0000435-6575e7c8",
+    "retrieval-b0000508-5ca6be16",
+    "retrieval-b0004276-de7fe1d2",
+    "retrieval-b0001255-bb17218c",
+    "retrieval-b0000435-06bc9b42",
+    "retrieval-b0003675-bf2e4414",
+    "retrieval-b0001922-1c429507",
+    "retrieval-b0001892-9e48c2e0",
+    "retrieval-b0001606-64740b7d",
+    "retrieval-b0001255-b5b3e984"
+   ]
+  }
+ },
+ "learned": [
+  "learned:bulge\u2193|onion\u2191|roundness\u2193",
+  "learned:onion\u2193|roundness\u2191|taper\u2193",
+  "learned:onion\u2193|roundness\u2193|taper\u2191",
+  "learned:onion\u2191|roundness\u2193|taper\u2191",
+  "learned:bulge\u2193|onion\u2191|taper\u2193"
+ ]
+}

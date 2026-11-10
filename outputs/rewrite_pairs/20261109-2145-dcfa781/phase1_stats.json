@@ -1,0 +1,1027 @@
+{
+ "partial": {
+  "aa_negate": {
+   "n": 4,
+   "close": 0,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.0,
+   "frac_close_rot": 0.0,
+   "class": "none"
+  },
+  "aa_wrap": {
+   "n": 50,
+   "close": 50,
+   "close_rot": 4,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 1.0,
+   "frac_close_rot": 1.0,
+   "class": "exact"
+  },
+  "bulge_flip": {
+   "n": 44,
+   "close": 0,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.0,
+   "frac_close_rot": 0.0,
+   "class": "none"
+  },
+  "r120[+++]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[++-]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+-+]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+--]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-++]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-+-]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[--+]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[---]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[++0]": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+-0]": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0+]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0-]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+00]": {
+   "n": 50,
+   "close": 17,
+   "close_rot": 2,
+   "n_rot": 4,
+   "hill": 16,
+   "frac_close": 0.34,
+   "frac_close_rot": 0.5,
+   "class": "conditional"
+  },
+  "r180[0++]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+-]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+0]": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[00+]": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 5,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[+00]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[-00]": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0+0]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0-0]": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00+]": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00-]": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "sizeperm_xzy": {
+   "n": 47,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.02127659574468085,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "sizeperm_yxz": {
+   "n": 42,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.07142857142857142,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "sizeperm_yzx": {
+   "n": 48,
+   "close": 0,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.0,
+   "frac_close_rot": 0.0,
+   "class": "none"
+  },
+  "sizeperm_zxy": {
+   "n": 48,
+   "close": 0,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.0,
+   "frac_close_rot": 0.0,
+   "class": "none"
+  },
+  "sizeperm_zyx": {
+   "n": 43,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.046511627906976744,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "taper_flip_x": {
+   "n": 50,
+   "close": 44,
+   "close_rot": 4,
+   "n_rot": 4,
+   "hill": 43,
+   "frac_close": 0.88,
+   "frac_close_rot": 1.0,
+   "class": "conditional"
+  },
+  "taper_flip_y": {
+   "n": 50,
+   "close": 44,
+   "close_rot": 4,
+   "n_rot": 4,
+   "hill": 44,
+   "frac_close": 0.88,
+   "frac_close_rot": 1.0,
+   "class": "conditional"
+  },
+  "r120[+++]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+++]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+++]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[++-]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[++-]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[++-]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+-+]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+-+]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+-+]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+--]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+--]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[+--]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-++]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-++]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-++]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-+-]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-+-]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[-+-]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[--+]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[--+]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[--+]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[---]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[---]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r120[---]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[++0]+bulge_flip": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[++0]+taper_flip_x": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[++0]+taper_flip_y": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+-0]+bulge_flip": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+-0]+taper_flip_x": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+-0]+taper_flip_y": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0+]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0+]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0+]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0-]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0-]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+0-]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+00]+bulge_flip": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 4,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[+00]+taper_flip_x": {
+   "n": 42,
+   "close": 10,
+   "close_rot": 3,
+   "n_rot": 4,
+   "hill": 0,
+   "frac_close": 0.23809523809523808,
+   "frac_close_rot": 0.75,
+   "class": "conditional"
+  },
+  "r180[+00]+taper_flip_y": {
+   "n": 50,
+   "close": 18,
+   "close_rot": 3,
+   "n_rot": 4,
+   "hill": 15,
+   "frac_close": 0.36,
+   "frac_close_rot": 0.75,
+   "class": "conditional"
+  },
+  "r180[0++]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0++]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0++]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+-]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+-]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+-]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+0]+bulge_flip": {
+   "n": 50,
+   "close": 17,
+   "close_rot": 2,
+   "n_rot": 4,
+   "hill": 17,
+   "frac_close": 0.34,
+   "frac_close_rot": 0.5,
+   "class": "conditional"
+  },
+  "r180[0+0]+taper_flip_x": {
+   "n": 50,
+   "close": 4,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.08,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[0+0]+taper_flip_y": {
+   "n": 48,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.041666666666666664,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[00+]+bulge_flip": {
+   "n": 50,
+   "close": 50,
+   "close_rot": 4,
+   "n_rot": 4,
+   "hill": 47,
+   "frac_close": 1.0,
+   "frac_close_rot": 1.0,
+   "class": "exact"
+  },
+  "r180[00+]+taper_flip_x": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 6,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r180[00+]+taper_flip_y": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 6,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[+00]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[+00]+taper_flip_x": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[+00]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[-00]+bulge_flip": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 2,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[-00]+taper_flip_x": {
+   "n": 50,
+   "close": 2,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.04,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[-00]+taper_flip_y": {
+   "n": 50,
+   "close": 1,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 1,
+   "frac_close": 0.02,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0+0]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0+0]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0+0]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0-0]+bulge_flip": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0-0]+taper_flip_x": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[0-0]+taper_flip_y": {
+   "n": 50,
+   "close": 3,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 3,
+   "frac_close": 0.06,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00+]+bulge_flip": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 5,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00+]+taper_flip_x": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 6,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00+]+taper_flip_y": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 6,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00-]+bulge_flip": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 5,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00-]+taper_flip_x": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 6,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  },
+  "r90[00-]+taper_flip_y": {
+   "n": 50,
+   "close": 6,
+   "close_rot": 0,
+   "n_rot": 4,
+   "hill": 6,
+   "frac_close": 0.12,
+   "frac_close_rot": 0.0,
+   "class": "conditional"
+  }
+ },
+ "done": [
+  0
+ ]
+}
