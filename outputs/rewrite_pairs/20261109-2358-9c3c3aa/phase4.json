@@ -1,0 +1,707 @@
+{
+ "assemblies": [
+  {
+   "name": "chair_145",
+   "category": "chair",
+   "n_prims": 17,
+   "extraction_check": {
+    "max_err": 1.5139579772949219e-05
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 80,
+   "n_beat": 42,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "mug_087",
+   "category": "mug",
+   "n_prims": 6,
+   "extraction_check": {
+    "max_err": 1.952052116394043e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 14,
+   "n_beat": 2,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cup_009",
+   "category": "cup",
+   "n_prims": 7,
+   "extraction_check": {
+    "max_err": 2.980232238769531e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 24,
+   "n_beat": 6,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "bowl_005",
+   "category": "bowl",
+   "n_prims": 12,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 44,
+   "n_beat": 20,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "bottle_035",
+   "category": "bottle",
+   "n_prims": 19,
+   "extraction_check": {
+    "max_err": 5.960464477539062e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 138,
+   "n_beat": 66,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "hat_015",
+   "category": "hat",
+   "n_prims": 12,
+   "extraction_check": {
+    "max_err": 4.76837158203125e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 53,
+   "n_beat": 6,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "glass_057",
+   "category": "glass",
+   "n_prims": 11,
+   "extraction_check": {
+    "max_err": 4.172325134277344e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 70,
+   "n_beat": 37,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "helmet_004",
+   "category": "helmet",
+   "n_prims": 45,
+   "extraction_check": {
+    "max_err": 2.980232238769531e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 216,
+   "n_beat": 41,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "snake_015",
+   "category": "snake",
+   "n_prims": 7,
+   "extraction_check": {
+    "max_err": 2.980232238769531e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 25,
+   "n_beat": 14,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "sofa_016",
+   "category": "sofa",
+   "n_prims": 20,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 102,
+   "n_beat": 60,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "airplane_031",
+   "category": "airplane",
+   "n_prims": 12,
+   "extraction_check": {
+    "max_err": 7.152557373046875e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 38,
+   "n_beat": 3,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "apple_045",
+   "category": "apple",
+   "n_prims": 12,
+   "extraction_check": {
+    "max_err": 5.662441253662109e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 66,
+   "n_beat": 16,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "ball_025",
+   "category": "ball",
+   "n_prims": 6,
+   "extraction_check": {
+    "max_err": 2.86102294921875e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 35,
+   "n_beat": 23,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "banana_003",
+   "category": "banana",
+   "n_prims": 8,
+   "extraction_check": {
+    "max_err": 1.5497207641601562e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 37,
+   "n_beat": 7,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "bicycle_012",
+   "category": "bicycle",
+   "n_prims": 19,
+   "extraction_check": {
+    "max_err": 1.7881393432617188e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 44,
+   "n_beat": 5,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "boat_024",
+   "category": "boat",
+   "n_prims": 19,
+   "extraction_check": {
+    "max_err": 2.0265579223632812e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 99,
+   "n_beat": 57,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "bread_008",
+   "category": "bread",
+   "n_prims": 10,
+   "extraction_check": {
+    "max_err": 6.780028343200684e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 56,
+   "n_beat": 14,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "bunny_022",
+   "category": "bunny",
+   "n_prims": 21,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 125,
+   "n_beat": 24,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "bus_015",
+   "category": "bus",
+   "n_prims": 9,
+   "extraction_check": {
+    "max_err": 1.9669532775878906e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 17,
+   "n_beat": 4,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "butterfly_001",
+   "category": "butterfly",
+   "n_prims": 14,
+   "extraction_check": {
+    "max_err": 5.364418029785156e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 29,
+   "n_beat": 5,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cake_038",
+   "category": "cake",
+   "n_prims": 38,
+   "extraction_check": {
+    "max_err": 1.8477439880371094e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 124,
+   "n_beat": 30,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "candy_011",
+   "category": "candy",
+   "n_prims": 13,
+   "extraction_check": {
+    "max_err": 1.7881393432617188e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 50,
+   "n_beat": 3,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "car_016",
+   "category": "car",
+   "n_prims": 10,
+   "extraction_check": {
+    "max_err": 2.9206275939941406e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 34,
+   "n_beat": 22,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cat_037",
+   "category": "cat",
+   "n_prims": 14,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 63,
+   "n_beat": 7,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cells_battery_034",
+   "category": "cells_battery",
+   "n_prims": 3,
+   "extraction_check": {
+    "max_err": 9.5367431640625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 5,
+   "n_beat": 2,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "chess_piece_028",
+   "category": "chess_piece",
+   "n_prims": 4,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 3,
+   "n_beat": 1,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "chicken_007",
+   "category": "chicken",
+   "n_prims": 20,
+   "extraction_check": {
+    "max_err": 4.172325134277344e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 76,
+   "n_beat": 27,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "closet_014",
+   "category": "closet",
+   "n_prims": 18,
+   "extraction_check": {
+    "max_err": 4.023313522338867e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 69,
+   "n_beat": 3,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "coin_025",
+   "category": "coin",
+   "n_prims": 9,
+   "extraction_check": {
+    "max_err": 3.390014171600342e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 40,
+   "n_beat": 18,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cookie_009",
+   "category": "cookie",
+   "n_prims": 16,
+   "extraction_check": {
+    "max_err": 4.76837158203125e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 94,
+   "n_beat": 12,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cow_023",
+   "category": "cow",
+   "n_prims": 20,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 67,
+   "n_beat": 46,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "crab_020",
+   "category": "crab",
+   "n_prims": 31,
+   "extraction_check": {
+    "max_err": 3.039836883544922e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 136,
+   "n_beat": 35,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "cupcake_007",
+   "category": "cupcake",
+   "n_prims": 35,
+   "extraction_check": {
+    "max_err": 3.8743019104003906e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 188,
+   "n_beat": 25,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "deer_moose_009",
+   "category": "deer_moose",
+   "n_prims": 24,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 87,
+   "n_beat": 17,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "dinosaur_007",
+   "category": "dinosaur",
+   "n_prims": 17,
+   "extraction_check": {
+    "max_err": 4.76837158203125e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 84,
+   "n_beat": 27,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "dog_068",
+   "category": "dog",
+   "n_prims": 31,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 159,
+   "n_beat": 25,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "dolphin_002",
+   "category": "dolphin",
+   "n_prims": 11,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 41,
+   "n_beat": 3,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "donut_028",
+   "category": "donut",
+   "n_prims": 12,
+   "extraction_check": {
+    "max_err": 1.7881393432617188e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 74,
+   "n_beat": 18,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "dragon_006",
+   "category": "dragon",
+   "n_prims": 30,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 135,
+   "n_beat": 25,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "drum_005",
+   "category": "drum",
+   "n_prims": 3,
+   "extraction_check": {
+    "max_err": 1.430511474609375e-06
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 2,
+   "n_beat": 0,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "elephant_005",
+   "category": "elephant",
+   "n_prims": 29,
+   "extraction_check": {
+    "max_err": 3.5762786865234375e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 118,
+   "n_beat": 35,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "fan_020",
+   "category": "fan",
+   "n_prims": 7,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 13,
+   "n_beat": 2,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "fish_019",
+   "category": "fish",
+   "n_prims": 13,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 40,
+   "n_beat": 3,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "flower_021",
+   "category": "flower",
+   "n_prims": 62,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 322,
+   "n_beat": 96,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "fox_055",
+   "category": "fox",
+   "n_prims": 25,
+   "extraction_check": {
+    "max_err": 8.344650268554688e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 122,
+   "n_beat": 39,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "fridge_018",
+   "category": "fridge",
+   "n_prims": 6,
+   "extraction_check": {
+    "max_err": 1.7881393432617188e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 13,
+   "n_beat": 2,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "fries_003",
+   "category": "fries",
+   "n_prims": 19,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 73,
+   "n_beat": 4,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "frog_025",
+   "category": "frog",
+   "n_prims": 25,
+   "extraction_check": {
+    "max_err": 3.5762786865234375e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 118,
+   "n_beat": 5,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "giraffe_005",
+   "category": "giraffe",
+   "n_prims": 17,
+   "extraction_check": {
+    "max_err": 4.76837158203125e-07
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": null,
+   "n_opps": 73,
+   "n_beat": 54,
+   "reconstructed_from_log": true
+  },
+  {
+   "name": "grapes_012",
+   "category": "grapes",
+   "n_prims": 34,
+   "extraction_check": {
+    "max_err": 2.384185791015625e-07,
+    "flipped_rotation": false
+   },
+   "target_mode": "proxy_self_occupancy",
+   "loss0": 0.020545577630400658,
+   "n_opps": 195,
+   "n_beat": 58
+  }
+ ],
+ "target_mode": {
+  "chair_145": "proxy_self_occupancy",
+  "mug_087": "proxy_self_occupancy",
+  "cup_009": "proxy_self_occupancy",
+  "bowl_005": "proxy_self_occupancy",
+  "bottle_035": "proxy_self_occupancy",
+  "hat_015": "proxy_self_occupancy",
+  "glass_057": "proxy_self_occupancy",
+  "helmet_004": "proxy_self_occupancy",
+  "snake_015": "proxy_self_occupancy",
+  "sofa_016": "proxy_self_occupancy",
+  "airplane_031": "proxy_self_occupancy",
+  "apple_045": "proxy_self_occupancy",
+  "ball_025": "proxy_self_occupancy",
+  "banana_003": "proxy_self_occupancy",
+  "bicycle_012": "proxy_self_occupancy",
+  "boat_024": "proxy_self_occupancy",
+  "bread_008": "proxy_self_occupancy",
+  "bunny_022": "proxy_self_occupancy",
+  "bus_015": "proxy_self_occupancy",
+  "butterfly_001": "proxy_self_occupancy",
+  "cake_038": "proxy_self_occupancy",
+  "candy_011": "proxy_self_occupancy",
+  "car_016": "proxy_self_occupancy",
+  "cat_037": "proxy_self_occupancy",
+  "cells_battery_034": "proxy_self_occupancy",
+  "chess_piece_028": "proxy_self_occupancy",
+  "chicken_007": "proxy_self_occupancy",
+  "closet_014": "proxy_self_occupancy",
+  "coin_025": "proxy_self_occupancy",
+  "cookie_009": "proxy_self_occupancy",
+  "cow_023": "proxy_self_occupancy",
+  "crab_020": "proxy_self_occupancy",
+  "cupcake_007": "proxy_self_occupancy",
+  "deer_moose_009": "proxy_self_occupancy",
+  "dinosaur_007": "proxy_self_occupancy",
+  "dog_068": "proxy_self_occupancy",
+  "dolphin_002": "proxy_self_occupancy",
+  "donut_028": "proxy_self_occupancy",
+  "dragon_006": "proxy_self_occupancy",
+  "drum_005": "proxy_self_occupancy",
+  "elephant_005": "proxy_self_occupancy",
+  "fan_020": "proxy_self_occupancy",
+  "fish_019": "proxy_self_occupancy",
+  "flower_021": "proxy_self_occupancy",
+  "fox_055": "proxy_self_occupancy",
+  "fridge_018": "proxy_self_occupancy",
+  "fries_003": "proxy_self_occupancy",
+  "frog_025": "proxy_self_occupancy",
+  "giraffe_005": "proxy_self_occupancy",
+  "grapes_012": "proxy_self_occupancy"
+ },
+ "note": "entries with reconstructed_from_log were rebuilt from log.txt after the run was stopped (phase4.json was only written at loop end); loss0 not logged"
+}

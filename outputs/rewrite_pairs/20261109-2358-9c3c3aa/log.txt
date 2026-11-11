@@ -1,0 +1,243 @@
+[23:58:29] run 20261109-2358-9c3c3aa preset=full device=cuda phases=['0', '1', '2', '3', '3b', '4', '5'] -> c:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2358-9c3c3aa
+[23:58:29] registry: 102 transforms after dedup
+[23:58:31] phase0: D(90°)=3.61e-04 D(45°)=0.067 metric_rel=0.006 varaxis_err={'Y': 4.172325134277344e-07, 'Z': 3.725290298461914e-07, 'X': 4.917383193969727e-07} ok=True
+[00:00:00] phase1 shard 0: 50 samples x 102 transforms, 937 near, 599 pairs, 58 (θ,g)/s cumulative
+[00:01:33] phase1 shard 1: 50 samples x 102 transforms, 1114 near, 579 pairs, 28 (θ,g)/s cumulative
+[00:02:35] phase1 shard 2: 50 samples x 102 transforms, 772 near, 349 pairs, 21 (θ,g)/s cumulative
+[00:04:18] phase1 shard 3: 50 samples x 102 transforms, 1024 near, 693 pairs, 15 (θ,g)/s cumulative
+[00:05:42] phase1 shard 4: 50 samples x 102 transforms, 981 near, 531 pairs, 12 (θ,g)/s cumulative
+[00:07:06] phase1 shard 5: 50 samples x 102 transforms, 973 near, 530 pairs, 10 (θ,g)/s cumulative
+[00:08:13] phase1 shard 6: 50 samples x 102 transforms, 756 near, 435 pairs, 9 (θ,g)/s cumulative
+[00:09:30] phase1 shard 7: 50 samples x 102 transforms, 773 near, 502 pairs, 8 (θ,g)/s cumulative
+[00:11:00] phase1 shard 8: 50 samples x 102 transforms, 1057 near, 565 pairs, 7 (θ,g)/s cumulative
+[00:12:40] phase1 shard 9: 50 samples x 102 transforms, 1199 near, 614 pairs, 6 (θ,g)/s cumulative
+[00:14:26] phase1 shard 10: 50 samples x 102 transforms, 1195 near, 651 pairs, 5 (θ,g)/s cumulative
+[00:16:06] phase1 shard 11: 50 samples x 102 transforms, 1095 near, 619 pairs, 5 (θ,g)/s cumulative
+[00:17:03] phase1 shard 12: 50 samples x 102 transforms, 785 near, 318 pairs, 5 (θ,g)/s cumulative
+[00:18:29] phase1 shard 13: 50 samples x 102 transforms, 999 near, 529 pairs, 4 (θ,g)/s cumulative
+[00:19:37] phase1 shard 14: 50 samples x 102 transforms, 777 near, 442 pairs, 4 (θ,g)/s cumulative
+[00:21:09] phase1 shard 15: 50 samples x 102 transforms, 1049 near, 577 pairs, 4 (θ,g)/s cumulative
+[00:22:19] phase1 shard 16: 50 samples x 102 transforms, 747 near, 456 pairs, 4 (θ,g)/s cumulative
+[00:23:43] phase1 shard 17: 50 samples x 102 transforms, 962 near, 519 pairs, 3 (θ,g)/s cumulative
+[00:25:02] phase1 shard 18: 50 samples x 102 transforms, 811 near, 499 pairs, 3 (θ,g)/s cumulative
+[00:26:26] phase1 shard 19: 50 samples x 102 transforms, 994 near, 494 pairs, 3 (θ,g)/s cumulative
+[00:27:19] phase1 shard 20: 50 samples x 102 transforms, 715 near, 293 pairs, 3 (θ,g)/s cumulative
+[00:29:11] phase1 shard 21: 50 samples x 102 transforms, 1314 near, 676 pairs, 3 (θ,g)/s cumulative
+[00:30:17] phase1 shard 22: 50 samples x 102 transforms, 785 near, 395 pairs, 3 (θ,g)/s cumulative
+[00:31:44] phase1 shard 23: 50 samples x 102 transforms, 955 near, 530 pairs, 3 (θ,g)/s cumulative
+[00:33:01] phase1 shard 24: 50 samples x 102 transforms, 918 near, 471 pairs, 2 (θ,g)/s cumulative
+[00:34:09] phase1 shard 25: 50 samples x 102 transforms, 793 near, 415 pairs, 2 (θ,g)/s cumulative
+[00:35:18] phase1 shard 26: 50 samples x 102 transforms, 807 near, 438 pairs, 2 (θ,g)/s cumulative
+[00:36:30] phase1 shard 27: 50 samples x 102 transforms, 892 near, 448 pairs, 2 (θ,g)/s cumulative
+[00:37:46] phase1 shard 28: 50 samples x 102 transforms, 921 near, 437 pairs, 2 (θ,g)/s cumulative
+[00:38:44] phase1 shard 29: 50 samples x 102 transforms, 649 near, 363 pairs, 2 (θ,g)/s cumulative
+[00:39:39] phase1 shard 30: 50 samples x 102 transforms, 679 near, 322 pairs, 2 (θ,g)/s cumulative
+[00:41:00] phase1 shard 31: 50 samples x 102 transforms, 826 near, 534 pairs, 2 (θ,g)/s cumulative
+[00:42:29] phase1 shard 32: 50 samples x 102 transforms, 1174 near, 494 pairs, 2 (θ,g)/s cumulative
+[00:44:17] phase1 shard 33: 50 samples x 102 transforms, 1266 near, 647 pairs, 2 (θ,g)/s cumulative
+[00:45:31] phase1 shard 34: 50 samples x 102 transforms, 967 near, 411 pairs, 2 (θ,g)/s cumulative
+[00:46:39] phase1 shard 35: 50 samples x 102 transforms, 785 near, 415 pairs, 2 (θ,g)/s cumulative
+[00:47:33] phase1 shard 36: 50 samples x 102 transforms, 711 near, 316 pairs, 2 (θ,g)/s cumulative
+[00:49:20] phase1 shard 37: 50 samples x 102 transforms, 1119 near, 734 pairs, 2 (θ,g)/s cumulative
+[00:51:01] phase1 shard 38: 50 samples x 102 transforms, 1083 near, 654 pairs, 2 (θ,g)/s cumulative
+[00:52:05] phase1 shard 39: 50 samples x 102 transforms, 768 near, 373 pairs, 2 (θ,g)/s cumulative
+[00:53:52] phase1 shard 40: 50 samples x 102 transforms, 1185 near, 688 pairs, 2 (θ,g)/s cumulative
+[00:55:24] phase1 shard 41: 50 samples x 102 transforms, 1096 near, 548 pairs, 1 (θ,g)/s cumulative
+[00:56:26] phase1 shard 42: 50 samples x 102 transforms, 647 near, 406 pairs, 1 (θ,g)/s cumulative
+[00:58:09] phase1 shard 43: 50 samples x 102 transforms, 1344 near, 574 pairs, 1 (θ,g)/s cumulative
+[00:59:37] phase1 shard 44: 50 samples x 102 transforms, 1031 near, 538 pairs, 1 (θ,g)/s cumulative
+[01:01:00] phase1 shard 45: 50 samples x 102 transforms, 914 near, 525 pairs, 1 (θ,g)/s cumulative
+[01:02:23] phase1 shard 46: 50 samples x 102 transforms, 929 near, 507 pairs, 1 (θ,g)/s cumulative
+[01:04:00] phase1 shard 47: 50 samples x 102 transforms, 962 near, 661 pairs, 1 (θ,g)/s cumulative
+[01:05:29] phase1 shard 48: 50 samples x 102 transforms, 959 near, 587 pairs, 1 (θ,g)/s cumulative
+[01:07:07] phase1 shard 49: 50 samples x 102 transforms, 1148 near, 622 pairs, 1 (θ,g)/s cumulative
+[01:08:38] phase1 shard 50: 50 samples x 102 transforms, 1093 near, 559 pairs, 1 (θ,g)/s cumulative
+[01:10:03] phase1 shard 51: 50 samples x 102 transforms, 935 near, 538 pairs, 1 (θ,g)/s cumulative
+[01:11:17] phase1 shard 52: 50 samples x 102 transforms, 901 near, 464 pairs, 1 (θ,g)/s cumulative
+[01:12:38] phase1 shard 53: 50 samples x 102 transforms, 841 near, 515 pairs, 1 (θ,g)/s cumulative
+[01:13:58] phase1 shard 54: 50 samples x 102 transforms, 839 near, 526 pairs, 1 (θ,g)/s cumulative
+[01:15:50] phase1 shard 55: 50 samples x 102 transforms, 1281 near, 720 pairs, 1 (θ,g)/s cumulative
+[01:17:15] phase1 shard 56: 50 samples x 102 transforms, 992 near, 527 pairs, 1 (θ,g)/s cumulative
+[01:19:08] phase1 shard 57: 50 samples x 102 transforms, 1367 near, 684 pairs, 1 (θ,g)/s cumulative
+[01:20:22] phase1 shard 58: 50 samples x 102 transforms, 925 near, 438 pairs, 1 (θ,g)/s cumulative
+[01:22:29] phase1 shard 59: 50 samples x 102 transforms, 1391 near, 801 pairs, 1 (θ,g)/s cumulative
+[01:23:51] phase1 shard 60: 50 samples x 102 transforms, 821 near, 557 pairs, 1 (θ,g)/s cumulative
+[01:25:02] phase1 shard 61: 50 samples x 102 transforms, 852 near, 433 pairs, 1 (θ,g)/s cumulative
+[01:26:24] phase1 shard 62: 50 samples x 102 transforms, 954 near, 475 pairs, 1 (θ,g)/s cumulative
+[01:27:51] phase1 shard 63: 50 samples x 102 transforms, 989 near, 534 pairs, 1 (θ,g)/s cumulative
+[01:29:14] phase1 shard 64: 50 samples x 102 transforms, 975 near, 481 pairs, 1 (θ,g)/s cumulative
+[01:31:02] phase1 shard 65: 50 samples x 102 transforms, 1242 near, 641 pairs, 1 (θ,g)/s cumulative
+[01:32:21] phase1 shard 66: 50 samples x 102 transforms, 876 near, 490 pairs, 1 (θ,g)/s cumulative
+[01:34:09] phase1 shard 67: 50 samples x 102 transforms, 1212 near, 717 pairs, 1 (θ,g)/s cumulative
+[01:35:40] phase1 shard 68: 50 samples x 102 transforms, 975 near, 589 pairs, 1 (θ,g)/s cumulative
+[01:37:05] phase1 shard 69: 50 samples x 102 transforms, 982 near, 516 pairs, 1 (θ,g)/s cumulative
+[01:38:30] phase1 shard 70: 50 samples x 102 transforms, 1049 near, 487 pairs, 1 (θ,g)/s cumulative
+[01:39:54] phase1 shard 71: 50 samples x 102 transforms, 933 near, 502 pairs, 1 (θ,g)/s cumulative
+[01:41:22] phase1 shard 72: 50 samples x 102 transforms, 932 near, 575 pairs, 1 (θ,g)/s cumulative
+[01:42:36] phase1 shard 73: 50 samples x 102 transforms, 880 near, 459 pairs, 1 (θ,g)/s cumulative
+[01:43:46] phase1 shard 74: 50 samples x 102 transforms, 891 near, 394 pairs, 1 (θ,g)/s cumulative
+[01:44:50] phase1 shard 75: 50 samples x 102 transforms, 790 near, 359 pairs, 1 (θ,g)/s cumulative
+[01:46:04] phase1 shard 76: 50 samples x 102 transforms, 912 near, 450 pairs, 1 (θ,g)/s cumulative
+[01:47:42] phase1 shard 77: 50 samples x 102 transforms, 1160 near, 594 pairs, 1 (θ,g)/s cumulative
+[01:48:49] phase1 shard 78: 50 samples x 102 transforms, 730 near, 436 pairs, 1 (θ,g)/s cumulative
+[01:50:02] phase1 shard 79: 50 samples x 102 transforms, 915 near, 451 pairs, 1 (θ,g)/s cumulative
+[01:52:01] phase1 shard 80: 50 samples x 102 transforms, 1232 near, 792 pairs, 1 (θ,g)/s cumulative
+[01:53:33] phase1 shard 81: 50 samples x 102 transforms, 1018 near, 594 pairs, 1 (θ,g)/s cumulative
+[01:55:03] phase1 shard 82: 50 samples x 102 transforms, 949 near, 590 pairs, 1 (θ,g)/s cumulative
+[01:56:08] phase1 shard 83: 50 samples x 102 transforms, 737 near, 384 pairs, 1 (θ,g)/s cumulative
+[01:57:17] phase1 shard 84: 50 samples x 102 transforms, 912 near, 371 pairs, 1 (θ,g)/s cumulative
+[01:58:41] phase1 shard 85: 50 samples x 102 transforms, 915 near, 547 pairs, 1 (θ,g)/s cumulative
+[02:00:14] phase1 shard 86: 50 samples x 102 transforms, 1047 near, 589 pairs, 1 (θ,g)/s cumulative
+[02:01:34] phase1 shard 87: 50 samples x 102 transforms, 814 near, 549 pairs, 1 (θ,g)/s cumulative
+[02:02:53] phase1 shard 88: 50 samples x 102 transforms, 948 near, 465 pairs, 1 (θ,g)/s cumulative
+[02:04:22] phase1 shard 89: 50 samples x 102 transforms, 1023 near, 546 pairs, 1 (θ,g)/s cumulative
+[02:05:40] phase1 shard 90: 50 samples x 102 transforms, 977 near, 439 pairs, 1 (θ,g)/s cumulative
+[02:06:39] phase1 shard 91: 50 samples x 102 transforms, 796 near, 327 pairs, 1 (θ,g)/s cumulative
+[02:08:04] phase1 shard 92: 50 samples x 102 transforms, 1037 near, 475 pairs, 1 (θ,g)/s cumulative
+[02:09:00] phase1 shard 93: 50 samples x 102 transforms, 710 near, 324 pairs, 1 (θ,g)/s cumulative
+[02:10:45] phase1 shard 94: 50 samples x 102 transforms, 1039 near, 712 pairs, 1 (θ,g)/s cumulative
+[02:11:58] phase1 shard 95: 50 samples x 102 transforms, 833 near, 475 pairs, 1 (θ,g)/s cumulative
+[02:13:08] phase1 shard 96: 50 samples x 102 transforms, 750 near, 458 pairs, 1 (θ,g)/s cumulative
+[02:14:38] phase1 shard 97: 50 samples x 102 transforms, 1080 near, 498 pairs, 1 (θ,g)/s cumulative
+[02:15:45] phase1 shard 98: 50 samples x 102 transforms, 736 near, 426 pairs, 1 (θ,g)/s cumulative
+[02:16:59] phase1 shard 99: 50 samples x 102 transforms, 884 near, 439 pairs, 1 (θ,g)/s cumulative
+[02:16:59] phase1: exact=2 conditional=99 none=1
+[02:18:35] phase2 shard 0: 34 minima evaluated, 34 pairs
+[02:20:12] phase2 shard 1: 39 minima evaluated, 39 pairs
+[02:21:47] phase2 shard 2: 28 minima evaluated, 28 pairs
+[02:23:25] phase2 shard 3: 39 minima evaluated, 39 pairs
+[02:25:02] phase2 shard 4: 40 minima evaluated, 40 pairs
+[02:26:39] phase2 shard 5: 36 minima evaluated, 36 pairs
+[02:28:14] phase2 shard 6: 27 minima evaluated, 27 pairs
+[02:29:51] phase2 shard 7: 29 minima evaluated, 29 pairs
+[02:31:28] phase2 shard 8: 41 minima evaluated, 41 pairs
+[02:33:04] phase2 shard 9: 42 minima evaluated, 42 pairs
+[02:34:42] phase2 shard 10: 41 minima evaluated, 41 pairs
+[02:36:19] phase2 shard 11: 42 minima evaluated, 42 pairs
+[02:37:54] phase2 shard 12: 21 minima evaluated, 21 pairs
+[02:39:31] phase2 shard 13: 33 minima evaluated, 33 pairs
+[02:41:07] phase2 shard 14: 32 minima evaluated, 32 pairs
+[02:42:44] phase2 shard 15: 44 minima evaluated, 44 pairs
+[02:44:20] phase2 shard 16: 30 minima evaluated, 30 pairs
+[02:45:57] phase2 shard 17: 38 minima evaluated, 38 pairs
+[02:47:33] phase2 shard 18: 27 minima evaluated, 27 pairs
+[02:49:09] phase2 shard 19: 30 minima evaluated, 30 pairs
+[03:22:52] phase3 shard 0: 451 compensated minima, 445 pairs
+[03:56:31] phase3 shard 1: 443 compensated minima, 437 pairs
+[04:30:12] phase3 shard 2: 459 compensated minima, 454 pairs
+[05:03:54] phase3 shard 3: 451 compensated minima, 446 pairs
+[05:37:29] phase3 shard 4: 442 compensated minima, 439 pairs
+[06:11:11] phase3 shard 5: 444 compensated minima, 441 pairs
+[06:19:50] phase3 cmaes: 50 searches, 9 pairs
+[06:28:14] phase3b: bank 200000 shapes, descriptor dim 4096 -> 128 (faiss=False)
+[06:29:42] phase3b: 5000 far, unexplained neighbour candidates to refine
+[06:43:21] phase3b: learned map learned:bulge↓|onion↓|roundness↑ support=32 R²=0.503
+[06:43:21] phase3b: learned map learned:dilate↑|onion↑|roundness↓ support=5 R²=0.994
+[06:43:21] phase3b: learned map learned:bulge↑|onion↓|roundness↑ support=54 R²=0.141
+[06:43:21] phase3b: learned map learned:onion↓|roundness↑|taper↓ support=29 R²=0.623
+[06:43:21] phase3b: learned map learned:bulge↑|onion↑|roundness↓ support=72 R²=0.253
+[06:43:21] phase3b: learned map learned:bulge↓|onion↑|taper↓ support=29 R²=0.657
+[06:43:21] phase3b: learned map learned:onion↓|roundness↑|taper↑ support=37 R²=0.271
+[06:43:21] phase3b: learned map learned:bulge↓|roundness↓|taper↑ support=37 R²=0.119
+[06:43:21] phase3b: learned map learned:bulge↓|onion↑|taper↑ support=15 R²=0.971
+[06:43:21] phase3b: learned map learned:bulge↑|onion↓|roundness↓ support=23 R²=0.852
+[06:43:21] phase3b: learned map learned:bulge↓|roundness↑|taper↓ support=19 R²=0.751
+[06:43:21] phase3b: learned map learned:bulge↓|onion↓|roundness↓ support=17 R²=0.583
+[06:43:21] phase3b: learned map learned:onion↓|size_y↓|size_z↑ support=8 R²=0.942
+[06:43:21] phase3b: learned map learned:onion↓|roundness↓|taper↑ support=68 R²=0.248
+[06:43:21] phase3b: learned map learned:bulge↓|onion↑|roundness↓ support=88 R²=0.494
+[06:43:21] phase3b: learned map learned:roundness↓|size_y↓|taper↑ support=7 R²=0.981
+[06:43:21] phase3b: learned map learned:bulge↑|onion↑|taper↑ support=18 R²=0.782
+[06:43:21] phase3b: learned map learned:onion↑|roundness↓|taper↑ support=60 R²=0.205
+[06:43:21] phase3b: learned map learned:bulge↑|roundness↓|taper↑ support=34 R²=0.238
+[06:43:21] phase3b: learned map learned:bulge↑|roundness↑|taper↑ support=13 R²=0.869
+[06:43:21] phase3b: learned map learned:bulge↓|roundness↓|taper↓ support=7 R²=0.995
+[06:43:21] phase3b: learned map learned:roundness↑|size_y↓|size_z↑ support=21 R²=0.882
+[06:43:21] phase3b: learned map learned:bulge↓|onion↓|taper↑ support=28 R²=0.687
+[06:43:21] phase3b: learned map learned:onion↑|roundness↑|taper↓ support=62 R²=0.596
+[06:43:21] phase3b: learned map learned:bulge↓|roundness↑|taper↑ support=11 R²=0.985
+[06:43:21] phase3b: learned map learned:roundness↓|size_y↑|size_z↓ support=27 R²=0.237
+[06:43:21] phase3b: learned map learned:onion↑|roundness↓|taper↓ support=24 R²=0.715
+[06:43:21] phase3b: learned map learned:bulge↑|onion↑|roundness↑ support=22 R²=1.000
+[06:43:21] phase3b: learned map learned:bulge↑|onion↑|taper↓ support=18 R²=0.906
+[06:43:21] phase3b: learned map learned:bulge↑|onion↓|taper↓ support=11 R²=0.719
+[06:43:21] phase3b: learned map learned:roundness↓|size_x↓|taper↑ support=8 R²=1.000
+[06:43:21] phase3b: learned map learned:roundness↓|size_y↓|size_z↑ support=7 R²=1.000
+[06:43:21] phase3b: learned map learned:bulge↓|onion↑|roundness↑ support=19 R²=0.632
+[06:43:21] phase3b: learned map learned:onion↓|size_x↓|taper↑ support=5 R²=1.000
+[06:43:21] phase3b: learned map learned:onion↑|roundness↑|taper↑ support=10 R²=0.994
+[06:43:21] phase3b: learned map learned:size_y↓|size_z↑|taper↑ support=8 R²=0.994
+[06:43:21] phase3b: learned map learned:bulge↑|onion↓|taper↑ support=37 R²=0.414
+[06:43:21] phase3b: learned map learned:bulge↓|onion↓|taper↓ support=9 R²=0.960
+[06:43:21] phase3b: learned map learned:bulge↑|roundness↑|taper↓ support=13 R²=0.543
+[06:43:21] phase3b: learned map learned:onion↑|size_y↓|size_z↑ support=9 R²=0.978
+[06:43:21] phase3b: learned map learned:bulge↓|size_x↓|size_y↑ support=5 R²=0.825
+[06:43:21] phase3b: learned map learned:bulge↑|roundness↓|taper↓ support=10 R²=0.986
+[06:43:21] phase3b: learned map learned:roundness↓|size_x↓|size_y↑ support=8 R²=0.466
+[06:43:21] phase3b: learned map learned:bulge↑|size_x↓|size_y↑ support=6 R²=0.653
+[06:43:21] phase3b: learned map learned:onion↓|size_y↑|size_z↓ support=10 R²=0.347
+[06:43:21] phase3b: learned map learned:roundness↓|size_x↑|size_y↓ support=6 R²=0.987
+[06:43:21] phase3b: learned map learned:onion↓|roundness↓|taper↓ support=7 R²=0.999
+[06:43:21] phase3b: learned map learned:onion↑|size_x↑|size_y↓ support=6 R²=0.821
+[06:43:23] held-out onion_annulus__bulge_ring: rank=1 residual=0.007540143560618162
+[06:43:25] held-out taper_flip: rank=1 residual=0.004788717720657587
+[06:43:25] held-out dilated_core_sphere__rounded_body: rank=None residual=None
+[06:43:25] phase3b: 1937 pairs; topology classes {'same': 1155, 'eps_equivalent': 643, 'different': 139}
+[06:46:18] run 20261109-2358-9c3c3aa preset=full device=cuda phases=['4', '5'] -> c:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2358-9c3c3aa
+[06:46:19] registry: 102 transforms after dedup
+[07:02:15] phase4 chair_145: 17 prims, 80 opportunities, 42 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.5139579772949219e-05)
+[07:06:28] phase4 mug_087: 6 prims, 14 opportunities, 2 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.952052116394043e-06)
+[07:11:46] phase4 cup_009: 7 prims, 24 opportunities, 6 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.980232238769531e-07)
+[07:21:27] phase4 bowl_005: 12 prims, 44 opportunities, 20 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[07:42:37] phase4 bottle_035: 19 prims, 138 opportunities, 66 beat both baselines (target=proxy_self_occupancy, extraction max_err=5.960464477539062e-07)
+[07:55:41] phase4 hat_015: 12 prims, 53 opportunities, 6 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.76837158203125e-07)
+[08:10:32] phase4 glass_057: 11 prims, 70 opportunities, 37 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.172325134277344e-07)
+[09:46:04] phase4 helmet_004: 45 prims, 216 opportunities, 41 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.980232238769531e-07)
+[09:53:40] phase4 snake_015: 7 prims, 25 opportunities, 14 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.980232238769531e-07)
+[10:22:42] phase4 sofa_016: 20 prims, 102 opportunities, 60 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[10:36:12] phase4 airplane_031: 12 prims, 38 opportunities, 3 beat both baselines (target=proxy_self_occupancy, extraction max_err=7.152557373046875e-07)
+[10:51:57] phase4 apple_045: 12 prims, 66 opportunities, 16 beat both baselines (target=proxy_self_occupancy, extraction max_err=5.662441253662109e-07)
+[10:59:12] phase4 ball_025: 6 prims, 35 opportunities, 23 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.86102294921875e-06)
+[11:08:27] phase4 banana_003: 8 prims, 37 opportunities, 7 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.5497207641601562e-06)
+[11:30:33] phase4 bicycle_012: 19 prims, 44 opportunities, 5 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.7881393432617188e-07)
+[11:58:08] phase4 boat_024: 19 prims, 99 opportunities, 57 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.0265579223632812e-06)
+[12:10:49] phase4 bread_008: 10 prims, 56 opportunities, 14 beat both baselines (target=proxy_self_occupancy, extraction max_err=6.780028343200684e-07)
+[12:43:54] phase4 bunny_022: 21 prims, 125 opportunities, 24 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[12:52:22] phase4 bus_015: 9 prims, 17 opportunities, 4 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.9669532775878906e-06)
+[13:07:41] phase4 butterfly_001: 14 prims, 29 opportunities, 5 beat both baselines (target=proxy_self_occupancy, extraction max_err=5.364418029785156e-07)
+[14:10:09] phase4 cake_038: 38 prims, 124 opportunities, 30 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.8477439880371094e-06)
+[14:25:42] phase4 candy_011: 13 prims, 50 opportunities, 3 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.7881393432617188e-07)
+[14:36:51] phase4 car_016: 10 prims, 34 opportunities, 22 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.9206275939941406e-06)
+[14:54:58] phase4 cat_037: 14 prims, 63 opportunities, 7 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[14:57:34] phase4 cells_battery_034: 3 prims, 5 opportunities, 2 beat both baselines (target=proxy_self_occupancy, extraction max_err=9.5367431640625e-07)
+[15:00:55] phase4 chess_piece_028: 4 prims, 3 opportunities, 1 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[15:27:34] phase4 chicken_007: 20 prims, 76 opportunities, 27 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.172325134277344e-07)
+[15:50:54] phase4 closet_014: 18 prims, 69 opportunities, 3 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.023313522338867e-07)
+[16:01:34] phase4 coin_025: 9 prims, 40 opportunities, 18 beat both baselines (target=proxy_self_occupancy, extraction max_err=3.390014171600342e-06)
+[16:24:42] phase4 cookie_009: 16 prims, 94 opportunities, 12 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.76837158203125e-07)
+[16:50:06] phase4 cow_023: 20 prims, 67 opportunities, 46 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[17:41:58] phase4 crab_020: 31 prims, 136 opportunities, 35 beat both baselines (target=proxy_self_occupancy, extraction max_err=3.039836883544922e-06)
+[18:49:28] phase4 cupcake_007: 35 prims, 188 opportunities, 25 beat both baselines (target=proxy_self_occupancy, extraction max_err=3.8743019104003906e-07)
+[19:23:29] phase4 deer_moose_009: 24 prims, 87 opportunities, 17 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[19:47:03] phase4 dinosaur_007: 17 prims, 84 opportunities, 27 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.76837158203125e-07)
+[20:41:55] phase4 dog_068: 31 prims, 159 opportunities, 25 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[20:54:22] phase4 dolphin_002: 11 prims, 41 opportunities, 3 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[21:10:54] phase4 donut_028: 12 prims, 74 opportunities, 18 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.7881393432617188e-07)
+[22:00:53] phase4 dragon_006: 30 prims, 135 opportunities, 25 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[22:03:19] phase4 drum_005: 3 prims, 2 opportunities, 0 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.430511474609375e-06)
+[22:49:00] phase4 elephant_005: 29 prims, 118 opportunities, 35 beat both baselines (target=proxy_self_occupancy, extraction max_err=3.5762786865234375e-07)
+[22:55:14] phase4 fan_020: 7 prims, 13 opportunities, 2 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[23:10:04] phase4 fish_019: 13 prims, 40 opportunities, 3 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[01:25:16] phase4 flower_021: 62 prims, 322 opportunities, 96 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[01:52:18] phase4 fox_055: 25 prims, 122 opportunities, 39 beat both baselines (target=proxy_self_occupancy, extraction max_err=8.344650268554688e-07)
+[01:56:32] phase4 fridge_018: 6 prims, 13 opportunities, 2 beat both baselines (target=proxy_self_occupancy, extraction max_err=1.7881393432617188e-07)
+[02:13:56] phase4 fries_003: 19 prims, 73 opportunities, 4 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[02:40:49] phase4 frog_025: 25 prims, 118 opportunities, 5 beat both baselines (target=proxy_self_occupancy, extraction max_err=3.5762786865234375e-07)
+[02:56:21] phase4 giraffe_005: 17 prims, 73 opportunities, 54 beat both baselines (target=proxy_self_occupancy, extraction max_err=4.76837158203125e-07)
+[03:15:22] run 20261109-2358-9c3c3aa preset=full device=cuda phases=['4', '5'] -> c:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2358-9c3c3aa
+[03:15:23] registry: 102 transforms after dedup
+[03:58:58] phase4 grapes_012: 34 prims, 195 opportunities, 58 beat both baselines (target=proxy_self_occupancy, extraction max_err=2.384185791015625e-07)
+[04:00:57] phase5: 725 rules (270 degenerate-valley groups)
+[04:00:58] summary written: c:\Users\Chris\Desktop\superfit\outputs\rewrite_pairs\20261109-2358-9c3c3aa\summary.md
+[04:00:58] sampling cache: 1352 requests, 749 computed, 715 bboxes computed
+[04:00:58] done in 2735.9s
