@@ -54,10 +54,13 @@ def main(argv=None):
     ap.add_argument("--delta_hill", type=float, default=None)
     ap.add_argument("--M", type=int, default=None)
     ap.add_argument("--synthetic_assemblies", type=int, default=None)
+    ap.add_argument("--n_assemblies", type=int, default=None,
+                    help="Phase 4 release assemblies; selection order is fixed, so a smaller n is a prefix of a larger one")
     ap.add_argument("--continue_on_phase0_failure", action="store_true")
     a = ap.parse_args(argv)
     cfg = get_config(a.preset, toys4k_release_root=a.toys4k_release_root, toys4k_mesh_root=a.toys4k_mesh_root,
-                     eps_close=a.eps_close, delta_hill=a.delta_hill, M=a.M, synthetic_assemblies=a.synthetic_assemblies)
+                     eps_close=a.eps_close, delta_hill=a.delta_hill, M=a.M, synthetic_assemblies=a.synthetic_assemblies,
+                     n_assemblies=a.n_assemblies)
     cfg.device = ("cuda" if th.cuda.is_available() else "cpu") if a.device == "auto" else a.device
     run_id = make_run_id(a.run_id, REPO)
     rd = RunDir(os.path.join(a.out, run_id))

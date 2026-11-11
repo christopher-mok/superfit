@@ -328,7 +328,7 @@ def fetch_singular_expr_eval(
             use_euler_angle=use_euler_angle,
             device=device,
         )
-        if fix_axis_variant:
+        if fix_axis_variant and not isinstance(in_expr, gls.NullExpression3D):
             in_expr = convert_marked_axis_variant_to_single_rotation(in_expr, use_euler_angle=use_euler_angle)
         if use_euler_angle:
             in_expr = rotf.recursive_axisangle_to_eulerangle(in_expr)

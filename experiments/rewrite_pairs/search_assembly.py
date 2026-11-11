@@ -502,9 +502,17 @@ def run(cfg, rd, reg, transform_classes, log):
         rd.write_shard("assembly", k, rows, samples)
         report["assemblies"].append(dict(name=asm.name, category=asm.category, n_prims=asm.n, extraction_check=chk, target_mode=mode,
                                          loss0=float(L0), n_opps=len(opps), n_beat=sum(r["qualifies"] for r in rows)))
+        _merge_phase4_report(rd, report)  # persist per assembly so an interrupted run keeps its report
         log(f"phase4 {asm.name}: {asm.n} prims, {len(opps)} opportunities, {sum(r['qualifies'] for r in rows)} beat both baselines "
             f"(target={mode}, extraction max_err={chk.get('max_err')})")
+    _merge_phase4_report(rd, report)
+
+
+def _merge_phase4_report(rd, report):
+    """Merge this session's assemblies into phase4.json, keyed by name (idempotent across resumes)."""
     prev = rd.load_json("phase4.json", {}) or {}
-    prev.setdefault("assemblies", []).extend(report["assemblies"])
+    by_name = {x["name"]: x for x in prev.get("assemblies", [])}
+    by_name.update({x["name"]: x for x in report["assemblies"]})
+    prev["assemblies"] = list(by_name.values())
     prev.setdefault("target_mode", {}).update(report["target_mode"])
     rd.save_json("phase4.json", prev)
