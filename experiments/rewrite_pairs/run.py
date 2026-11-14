@@ -91,6 +91,8 @@ def main(argv=None):
     ))
     log(f"run {run_id} preset={cfg.preset} device={cfg.device} phases={sorted(phases)} -> {rd.root}")
     reg = build_registry()
+    if os.path.exists(rd.path("transforms.json")):
+        reg.load_learned(rd.path("transforms.json"))  # keep Phase 3b/5 learned maps on resume
     reg.save(rd.path("transforms.json"))
     log(f"registry: {len(reg)} transforms after dedup")
     classes = rd.load_json("transform_classes.json")

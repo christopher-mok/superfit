@@ -1,0 +1,7145 @@
+{
+  "title": "SuperFrustum rewrite rules (hill-crossing primitive pairs)",
+  "run_id": "20261109-2358-9c3c3aa",
+  "git_sha": "9c3c3aa",
+  "preset": "full",
+  "what_a_rule_is": "Two SuperFrustum parameter settings A and B that give (nearly) the same shape, separated by a hill: the straight path between them passes through clearly different shapes, so gradient descent started at A does not reach B. A rule maps A to B in one step.",
+  "tiers": {
+    "exact": "holds for every primitive; the jump is free",
+    "conditional": "holds when applies_when is true; check it first",
+    "canonicalize": "A and B are the same shape with no hill between them (a flat valley); pick one canonical form rather than jumping",
+    "approximate": "B is only close to A (and the map is fitted, not derived); apply, then refine a few steps. Low confidence"
+  },
+  "thresholds": {
+    "shape_distance_eps": 0.01,
+    "barrier_delta": 0.05,
+    "shape_distance": "mean |sdf_A - sdf_B| over near-surface + uniform samples, divided by the primitive scale",
+    "barrier": "max shape distance along the straight A->B path above the endpoints"
+  },
+  "selection": {
+    "min_support": {
+      "exact": 1,
+      "conditional": 100,
+      "canonicalize": 40,
+      "approximate": 30
+    },
+    "note": "rules below these supports are in the run's rules.json"
+  },
+  "parameter_layout": [
+    {
+      "index": 0,
+      "name": "tx",
+      "meaning": "translation x",
+      "range": [
+        -0.9999,
+        0.9999
+      ]
+    },
+    {
+      "index": 1,
+      "name": "ty",
+      "meaning": "translation y",
+      "range": [
+        -0.9999,
+        0.9999
+      ]
+    },
+    {
+      "index": 2,
+      "name": "tz",
+      "meaning": "translation z",
+      "range": [
+        -0.9999,
+        0.9999
+      ]
+    },
+    {
+      "index": 3,
+      "name": "sx",
+      "meaning": "size x (half-extent of the base)",
+      "range": [
+        0.0,
+        1.9999
+      ]
+    },
+    {
+      "index": 4,
+      "name": "sy",
+      "meaning": "size y (half-extent of the base)",
+      "range": [
+        0.0,
+        1.9999
+      ]
+    },
+    {
+      "index": 5,
+      "name": "sz",
+      "meaning": "size z (half-height, the taper axis)",
+      "range": [
+        0.0,
+        1.9999
+      ]
+    },
+    {
+      "index": 6,
+      "name": "roundness",
+      "meaning": "corner radius of the base cross-section, relative to min(sx, sy)/2",
+      "range": [
+        0.0,
+        0.9999
+      ]
+    },
+    {
+      "index": 7,
+      "name": "dilate",
+      "meaning": "uniform 3D dilation (rounded offset of the whole solid)",
+      "range": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "index": 8,
+      "name": "taper",
+      "meaning": "top/base scale along z; 1 = no taper",
+      "range": [
+        0.0,
+        1.9999
+      ]
+    },
+    {
+      "index": 9,
+      "name": "bulge",
+      "meaning": "bend of the z axis into an arc; sign = bend direction, 0 is singular (use +-1e-3 as neutral)",
+      "range": [
+        -1.9999,
+        1.9999
+      ]
+    },
+    {
+      "index": 10,
+      "name": "onion",
+      "meaning": "shell thickness ratio; 0 = solid",
+      "range": [
+        0.0,
+        0.9999
+      ]
+    },
+    {
+      "index": 11,
+      "name": "rx",
+      "meaning": "rotation, axis-angle x",
+      "range": null
+    },
+    {
+      "index": 12,
+      "name": "ry",
+      "meaning": "rotation, axis-angle y",
+      "range": null
+    },
+    {
+      "index": 13,
+      "name": "rz",
+      "meaning": "rotation, axis-angle z",
+      "range": null
+    }
+  ],
+  "feature_definitions": {
+    "aniso_xy": "|sx - sy| / max(size)",
+    "aniso_xz": "|sx - sz| / max(size)",
+    "aniso_yz": "|sy - sz| / max(size)",
+    "roundness": "roundness",
+    "dilate_rel": "dilate / max(size)",
+    "taper": "taper",
+    "taper_dev": "|taper - 1|",
+    "abs_bulge": "|bulge|",
+    "onion": "onion",
+    "round_minus_inset": "roundness - (1 - taper); >= 0 is when a taper flip is exact",
+    "rot_angle": "|axis-angle| in radians",
+    "thin": "min(size) / max(size)",
+    "dilate_core": "dilate / (dilate + min(size)/2)",
+    "inner_rel": "min(sx, sy)/2 / max(size)"
+  },
+  "how_to_apply": "theta is the 14-vector in parameter space (parameter_layout). For exact/conditional/canonicalize rules the transform block is complete: optional taper flip, then local rotation (rotate the shape frame by local_rotation_matrix, compose into the world rotation, re-order sizes by size_permutation), then optional bulge negation. Reference code: op_taper_flip / op_group / op_bulge_flip in experiments/rewrite_pairs/transforms.py; transforms.apply_rule takes legacy_rule_id with the run's rules.json. Check applies_when with feature_definitions first.",
+  "counts": {
+    "exact": 1,
+    "conditional": 61,
+    "canonicalize": 23,
+    "approximate": 22
+  },
+  "exact_rules": [
+    {
+      "rule_id": "r180[00+]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation; then negate bulge",
+      "applies_when": "always",
+      "applies_when_struct": [],
+      "parameters_that_change": [
+        "bulge",
+        "dilate",
+        "onion",
+        "rotation"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 4604,
+        "pairs_by_phase": {
+          "group": 4201,
+          "compensated": 388,
+          "retrieval": 15
+        },
+        "mean_shape_distance": 0.000311,
+        "mean_barrier": 0.3612,
+        "precondition_balanced_accuracy": null,
+        "same_topology_fraction": 0.877,
+        "holds_on_random_primitives": 1.0
+      },
+      "example_pair_ids": [
+        "compensated-s000000-11b56acf",
+        "compensated-s000001-11b56acf",
+        "compensated-s000001-39619e54"
+      ],
+      "legacy_rule_id": "r180_00+_+bulge_flip"
+    }
+  ],
+  "conditional_rules": [
+    {
+      "rule_id": "taper_flip_y",
+      "what_it_does": "turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "(inner_rel <= 0.0383) or (taper > 0.477)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0383
+          ]
+        ],
+        [
+          [
+            "taper",
+            ">",
+            0.477
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 4609,
+        "pairs_by_phase": {
+          "group": 4209,
+          "compensated": 399,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.000683,
+        "mean_barrier": 0.31,
+        "precondition_balanced_accuracy": 0.972,
+        "same_topology_fraction": 0.859,
+        "holds_on_random_primitives": 0.8418
+      },
+      "example_pair_ids": [
+        "compensated-s000000-cd5fbe94",
+        "compensated-s000000-c2bdfda7",
+        "compensated-s000001-cd5fbe94"
+      ],
+      "legacy_rule_id": "taper_flip_y"
+    },
+    {
+      "rule_id": "taper_flip_x",
+      "what_it_does": "turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "(inner_rel <= 0.0383) or (taper > 0.477)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0383
+          ]
+        ],
+        [
+          [
+            "taper",
+            ">",
+            0.477
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "dilate",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 4323,
+        "pairs_by_phase": {
+          "group": 4039,
+          "compensated": 280,
+          "retrieval": 4
+        },
+        "mean_shape_distance": 0.000575,
+        "mean_barrier": 0.256,
+        "precondition_balanced_accuracy": 0.972,
+        "same_topology_fraction": 0.901,
+        "holds_on_random_primitives": 0.8418
+      },
+      "example_pair_ids": [
+        "compensated-s000000-d0b7dcad",
+        "compensated-s000000-c208fedb",
+        "compensated-s000001-d0b7dcad"
+      ],
+      "legacy_rule_id": "taper_flip_x"
+    },
+    {
+      "rule_id": "r180[+00]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local x, compensating in the world rotation",
+      "applies_when": "(inner_rel <= 0.0608) or (taper_dev <= 0.1797)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0608
+          ]
+        ],
+        [
+          [
+            "taper_dev",
+            "<=",
+            0.1797
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "dilate",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[+00]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 1857,
+        "pairs_by_phase": {
+          "group": 1616,
+          "sweep": 183,
+          "compensated": 58
+        },
+        "mean_shape_distance": 0.003085,
+        "mean_barrier": 0.2674,
+        "precondition_balanced_accuracy": 0.89,
+        "same_topology_fraction": 0.974,
+        "holds_on_random_primitives": 0.3324
+      },
+      "example_pair_ids": [
+        "compensated-s000021-d0b7dcad",
+        "compensated-s000028-d0b7dcad",
+        "compensated-s000035-d0b7dcad"
+      ],
+      "legacy_rule_id": "r180_+00_"
+    },
+    {
+      "rule_id": "r180[+00]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local x, compensating in the world rotation; then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "(inner_rel <= 0.0532) or (taper_dev <= 0.2243)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0532
+          ]
+        ],
+        [
+          [
+            "taper_dev",
+            "<=",
+            0.2243
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[+00]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 1683,
+        "pairs_by_phase": {
+          "group": 1644,
+          "compensated": 39
+        },
+        "mean_shape_distance": 0.002919,
+        "mean_barrier": 0.3177,
+        "precondition_balanced_accuracy": 0.894,
+        "same_topology_fraction": 0.896,
+        "holds_on_random_primitives": 0.3402
+      },
+      "example_pair_ids": [
+        "compensated-s000023-11b56acf",
+        "compensated-s000035-11b56acf",
+        "compensated-s000035-4dd0db1b"
+      ],
+      "legacy_rule_id": "r180_+00_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[0+0]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local y, compensating in the world rotation; then negate bulge",
+      "applies_when": "(inner_rel <= 0.0608) or (taper_dev <= 0.1797)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0608
+          ]
+        ],
+        [
+          [
+            "taper_dev",
+            "<=",
+            0.1797
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[0+0]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 1607,
+        "pairs_by_phase": {
+          "group": 1593,
+          "compensated": 14
+        },
+        "mean_shape_distance": 0.002897,
+        "mean_barrier": 0.3024,
+        "precondition_balanced_accuracy": 0.889,
+        "same_topology_fraction": 0.895,
+        "holds_on_random_primitives": 0.3328
+      },
+      "example_pair_ids": [
+        "compensated-s000029-cd5fbe94",
+        "compensated-s000063-d9577746",
+        "compensated-s000103-cd5fbe94"
+      ],
+      "legacy_rule_id": "r180_0+0_+bulge_flip"
+    },
+    {
+      "rule_id": "r90[00+]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0446 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r90[00+]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 713,
+        "pairs_by_phase": {
+          "group": 713
+        },
+        "mean_shape_distance": 0.000897,
+        "mean_barrier": 0.1645,
+        "precondition_balanced_accuracy": 0.994,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1518
+      },
+      "example_pair_ids": [
+        "group-s000004-ed37c7bd",
+        "group-s000021-ed37c7bd",
+        "group-s000023-ed37c7bd"
+      ],
+      "legacy_rule_id": "r90_00+_+taper_flip_x"
+    },
+    {
+      "rule_id": "r90[00-]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0446 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r90[00-]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 713,
+        "pairs_by_phase": {
+          "group": 713
+        },
+        "mean_shape_distance": 0.000897,
+        "mean_barrier": 0.1643,
+        "precondition_balanced_accuracy": 0.994,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1516
+      },
+      "example_pair_ids": [
+        "group-s000004-5a4d7316",
+        "group-s000021-5a4d7316",
+        "group-s000023-5a4d7316"
+      ],
+      "legacy_rule_id": "r90_00-_+taper_flip_x"
+    },
+    {
+      "rule_id": "r90[00-]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0446 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00-]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 713,
+        "pairs_by_phase": {
+          "group": 713
+        },
+        "mean_shape_distance": 0.000897,
+        "mean_barrier": 0.223,
+        "precondition_balanced_accuracy": 0.994,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1518
+      },
+      "example_pair_ids": [
+        "group-s000004-1409f9ae",
+        "group-s000021-1409f9ae",
+        "group-s000023-1409f9ae"
+      ],
+      "legacy_rule_id": "r90_00-_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[00+]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation",
+      "applies_when": "abs_bulge <= 0.0562",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0562
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 544,
+        "pairs_by_phase": {
+          "group": 454,
+          "sweep": 77,
+          "compensated": 13
+        },
+        "mean_shape_distance": 0.001084,
+        "mean_barrier": 0.1459,
+        "precondition_balanced_accuracy": 0.987,
+        "same_topology_fraction": 0.988,
+        "holds_on_random_primitives": 0.168
+      },
+      "example_pair_ids": [
+        "compensated-s000028-11b56acf",
+        "compensated-s000064-11b56acf",
+        "compensated-s000086-11b56acf"
+      ],
+      "legacy_rule_id": "r180_00+_"
+    },
+    {
+      "rule_id": "r180[0+0]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local y, compensating in the world rotation",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[0+0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 525,
+        "pairs_by_phase": {
+          "group": 429,
+          "sweep": 84,
+          "compensated": 12
+        },
+        "mean_shape_distance": 0.001282,
+        "mean_barrier": 0.1621,
+        "precondition_balanced_accuracy": 0.973,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0938
+      },
+      "example_pair_ids": [
+        "compensated-s000021-cd5fbe94",
+        "compensated-s000044-cd5fbe94",
+        "compensated-s000050-1bad5bb6"
+      ],
+      "legacy_rule_id": "r180_0+0_"
+    },
+    {
+      "rule_id": "r180[+00]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local x, compensating in the world rotation; then negate bulge",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "dilate",
+        "onion",
+        "rotation"
+      ],
+      "transform": {
+        "transform_id": "r180[+00]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 481,
+        "pairs_by_phase": {
+          "group": 468,
+          "compensated": 12,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.001347,
+        "mean_barrier": 0.2307,
+        "precondition_balanced_accuracy": 0.974,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0936
+      },
+      "example_pair_ids": [
+        "compensated-s000004-d0b7dcad",
+        "compensated-s000044-d0b7dcad",
+        "compensated-s000086-70eeb3ef"
+      ],
+      "legacy_rule_id": "r180_+00_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[+-0]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, -1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz)",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[+-0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 470,
+        "pairs_by_phase": {
+          "group": 469,
+          "sweep": 1
+        },
+        "mean_shape_distance": 0.001283,
+        "mean_barrier": 0.163,
+        "precondition_balanced_accuracy": 0.978,
+        "same_topology_fraction": 0.968,
+        "holds_on_random_primitives": 0.0932
+      },
+      "example_pair_ids": [
+        "group-s000004-60b2fd33",
+        "group-s000021-60b2fd33",
+        "group-s000023-60b2fd33"
+      ],
+      "legacy_rule_id": "r180_+-0_"
+    },
+    {
+      "rule_id": "r180[+-0]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, -1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[+-0]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 470,
+        "pairs_by_phase": {
+          "group": 470
+        },
+        "mean_shape_distance": 0.001291,
+        "mean_barrier": 0.211,
+        "precondition_balanced_accuracy": 0.978,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0932
+      },
+      "example_pair_ids": [
+        "group-s000004-5204290e",
+        "group-s000021-5204290e",
+        "group-s000023-5204290e"
+      ],
+      "legacy_rule_id": "r180_+-0_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[++0]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz)",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[++0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 468,
+        "pairs_by_phase": {
+          "group": 468
+        },
+        "mean_shape_distance": 0.001255,
+        "mean_barrier": 0.1629,
+        "precondition_balanced_accuracy": 0.978,
+        "same_topology_fraction": 0.968,
+        "holds_on_random_primitives": 0.0932
+      },
+      "example_pair_ids": [
+        "group-s000004-a3b9af2e",
+        "group-s000021-a3b9af2e",
+        "group-s000023-a3b9af2e"
+      ],
+      "legacy_rule_id": "r180_++0_"
+    },
+    {
+      "rule_id": "r180[++0]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[++0]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 468,
+        "pairs_by_phase": {
+          "group": 468
+        },
+        "mean_shape_distance": 0.001254,
+        "mean_barrier": 0.2108,
+        "precondition_balanced_accuracy": 0.978,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0934
+      },
+      "example_pair_ids": [
+        "group-s000004-6a29b51c",
+        "group-s000021-6a29b51c",
+        "group-s000023-6a29b51c"
+      ],
+      "legacy_rule_id": "r180_++0_+bulge_flip"
+    },
+    {
+      "rule_id": "r90[00-]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00-]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 425,
+        "pairs_by_phase": {
+          "group": 415,
+          "compensated": 9,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.001177,
+        "mean_barrier": 0.1514,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1676
+      },
+      "example_pair_ids": [
+        "compensated-s000033-e9ae8815",
+        "compensated-s000060-e9ae8815",
+        "compensated-s000062-e9ae8815"
+      ],
+      "legacy_rule_id": "r90_00-_+bulge_flip"
+    },
+    {
+      "rule_id": "r90[00+]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00+]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 424,
+        "pairs_by_phase": {
+          "group": 415,
+          "compensated": 9
+        },
+        "mean_shape_distance": 0.001141,
+        "mean_barrier": 0.1512,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 0.909,
+        "holds_on_random_primitives": 0.1674
+      },
+      "example_pair_ids": [
+        "compensated-s000062-94c3f5d9",
+        "compensated-s000090-94c3f5d9",
+        "compensated-s000122-94c3f5d9"
+      ],
+      "legacy_rule_id": "r90_00+_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[+-0]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, -1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[+-0]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 417,
+        "pairs_by_phase": {
+          "group": 414,
+          "compensated": 3
+        },
+        "mean_shape_distance": 0.001244,
+        "mean_barrier": 0.1258,
+        "precondition_balanced_accuracy": 0.975,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.094
+      },
+      "example_pair_ids": [
+        "compensated-s000247-94c3f5d9",
+        "compensated-s000269-94c3f5d9",
+        "compensated-s000295-94c3f5d9"
+      ],
+      "legacy_rule_id": "r180_+-0_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[++0]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[++0]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 416,
+        "pairs_by_phase": {
+          "group": 412,
+          "compensated": 4
+        },
+        "mean_shape_distance": 0.001222,
+        "mean_barrier": 0.1261,
+        "precondition_balanced_accuracy": 0.975,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.094
+      },
+      "example_pair_ids": [
+        "compensated-s000104-e9ae8815",
+        "compensated-s000247-e9ae8815",
+        "compensated-s000269-e9ae8815"
+      ],
+      "legacy_rule_id": "r180_++0_+taper_flip_y"
+    },
+    {
+      "rule_id": "r90[00+]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz)",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 410,
+        "pairs_by_phase": {
+          "group": 390,
+          "compensated": 19,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.001068,
+        "mean_barrier": 0.0822,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 0.923,
+        "holds_on_random_primitives": 0.1676
+      },
+      "example_pair_ids": [
+        "compensated-s000023-94c3f5d9",
+        "compensated-s000023-39619e54",
+        "compensated-s000028-94c3f5d9"
+      ],
+      "legacy_rule_id": "r90_00+_"
+    },
+    {
+      "rule_id": "r90[00-]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz)",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00-]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 402,
+        "pairs_by_phase": {
+          "group": 389,
+          "compensated": 13
+        },
+        "mean_shape_distance": 0.001023,
+        "mean_barrier": 0.0821,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 0.9,
+        "holds_on_random_primitives": 0.1672
+      },
+      "example_pair_ids": [
+        "compensated-s000023-e9ae8815",
+        "compensated-s000028-523ca98e",
+        "compensated-s000030-e9ae8815"
+      ],
+      "legacy_rule_id": "r90_00-_"
+    },
+    {
+      "rule_id": "r180[00+]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation; then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0586 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0586
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 384,
+        "pairs_by_phase": {
+          "group": 378,
+          "compensated": 6
+        },
+        "mean_shape_distance": 0.001486,
+        "mean_barrier": 0.2682,
+        "precondition_balanced_accuracy": 0.985,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1524
+      },
+      "example_pair_ids": [
+        "compensated-s000081-d0b7dcad",
+        "compensated-s000085-d0b7dcad",
+        "compensated-s000140-d0b7dcad"
+      ],
+      "legacy_rule_id": "r180_00+_+taper_flip_y"
+    },
+    {
+      "rule_id": "r90[00+]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0446 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00+]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 377,
+        "pairs_by_phase": {
+          "group": 376,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.00137,
+        "mean_barrier": 0.2335,
+        "precondition_balanced_accuracy": 0.994,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1518
+      },
+      "example_pair_ids": [
+        "group-s000030-0562a96a",
+        "group-s000033-0562a96a",
+        "group-s000034-0562a96a"
+      ],
+      "legacy_rule_id": "r90_00+_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[00+]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation; then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0586 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0586
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "dilate",
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 357,
+        "pairs_by_phase": {
+          "group": 344,
+          "compensated": 13
+        },
+        "mean_shape_distance": 0.001469,
+        "mean_barrier": 0.1672,
+        "precondition_balanced_accuracy": 0.986,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1522
+      },
+      "example_pair_ids": [
+        "compensated-s000033-4c089881",
+        "compensated-s000034-cd5fbe94",
+        "compensated-s000060-a2dd6487"
+      ],
+      "legacy_rule_id": "r180_00+_+taper_flip_x"
+    },
+    {
+      "rule_id": "r180[+0-]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 0, -1), compensating in the world rotation, sizes re-ordered to (sz, sy, sx)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[+0-]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 207,
+        "pairs_by_phase": {
+          "group": 207
+        },
+        "mean_shape_distance": 0.005001,
+        "mean_barrier": 0.1592,
+        "precondition_balanced_accuracy": 0.93,
+        "same_topology_fraction": 0.923,
+        "holds_on_random_primitives": 0.0414
+      },
+      "example_pair_ids": [
+        "group-s000023-90de0ffc",
+        "group-s000034-90de0ffc",
+        "group-s000044-90de0ffc"
+      ],
+      "legacy_rule_id": "r180_+0-_"
+    },
+    {
+      "rule_id": "r90[0+0]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0+0]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 207,
+        "pairs_by_phase": {
+          "group": 207
+        },
+        "mean_shape_distance": 0.005,
+        "mean_barrier": 0.1449,
+        "precondition_balanced_accuracy": 0.93,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0414
+      },
+      "example_pair_ids": [
+        "group-s000023-62e10d99",
+        "group-s000034-62e10d99",
+        "group-s000044-62e10d99"
+      ],
+      "legacy_rule_id": "r90_0+0_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[+0+]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 0, 1), compensating in the world rotation, sizes re-ordered to (sz, sy, sx)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4916",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4916
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[+0+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 203,
+        "pairs_by_phase": {
+          "group": 203
+        },
+        "mean_shape_distance": 0.004965,
+        "mean_barrier": 0.1574,
+        "precondition_balanced_accuracy": 0.942,
+        "same_topology_fraction": 0.929,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "group-s000023-0c479b8c",
+        "group-s000034-0c479b8c",
+        "group-s000044-0c479b8c"
+      ],
+      "legacy_rule_id": "r180_+0+_"
+    },
+    {
+      "rule_id": "r180[+0+]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 0, 1), compensating in the world rotation, sizes re-ordered to (sz, sy, sx); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[+0+]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 203,
+        "pairs_by_phase": {
+          "group": 202,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.004958,
+        "mean_barrier": 0.2013,
+        "precondition_balanced_accuracy": 0.942,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0404
+      },
+      "example_pair_ids": [
+        "group-s000023-c0e7cc5a",
+        "group-s000034-c0e7cc5a",
+        "group-s000044-c0e7cc5a"
+      ],
+      "legacy_rule_id": "r180_+0+_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[+0+]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 0, 1), compensating in the world rotation, sizes re-ordered to (sz, sy, sx); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4742",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4742
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[+0+]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 203,
+        "pairs_by_phase": {
+          "group": 202,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.004887,
+        "mean_barrier": 0.2027,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "group-s000023-a73ce113",
+        "group-s000034-a73ce113",
+        "group-s000044-a73ce113"
+      ],
+      "legacy_rule_id": "r180_+0+_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[0++]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, 1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then negate bulge",
+      "applies_when": "abs_bulge <= 0.1168 and taper_dev <= 0.4901",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.1168
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4901
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[0++]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 203,
+        "pairs_by_phase": {
+          "group": 202,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.00502,
+        "mean_barrier": 0.1989,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0402
+      },
+      "example_pair_ids": [
+        "group-s000023-9f1f5186",
+        "group-s000034-9f1f5186",
+        "group-s000044-9f1f5186"
+      ],
+      "legacy_rule_id": "r180_0++_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[0+-]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, -1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then negate bulge",
+      "applies_when": "abs_bulge <= 0.1168 and taper_dev <= 0.4901",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.1168
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4901
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[0+-]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 203,
+        "pairs_by_phase": {
+          "group": 202,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.005,
+        "mean_barrier": 0.1989,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0402
+      },
+      "example_pair_ids": [
+        "group-s000023-0276384e",
+        "group-s000034-0276384e",
+        "group-s000044-0276384e"
+      ],
+      "legacy_rule_id": "r180_0+-_+bulge_flip"
+    },
+    {
+      "rule_id": "r90[0+0]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4742",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4742
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[0+0]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 203,
+        "pairs_by_phase": {
+          "group": 203
+        },
+        "mean_shape_distance": 0.00494,
+        "mean_barrier": 0.1434,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0408
+      },
+      "example_pair_ids": [
+        "group-s000023-76a4c1b3",
+        "group-s000034-76a4c1b3",
+        "group-s000044-76a4c1b3"
+      ],
+      "legacy_rule_id": "r90_0+0_+taper_flip_y"
+    },
+    {
+      "rule_id": "r120[+-+]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, -1, 1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx)",
+      "applies_when": "abs_bulge <= 0.0395 and taper_dev <= 0.4916",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0395
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4916
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[+-+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 198,
+        "pairs_by_phase": {
+          "group": 195,
+          "retrieval": 3
+        },
+        "mean_shape_distance": 0.004988,
+        "mean_barrier": 0.1137,
+        "precondition_balanced_accuracy": 0.95,
+        "same_topology_fraction": 0.81,
+        "holds_on_random_primitives": 0.0392
+      },
+      "example_pair_ids": [
+        "group-s000023-435db911",
+        "group-s000034-435db911",
+        "group-s000044-435db911"
+      ],
+      "legacy_rule_id": "r120_+-+_"
+    },
+    {
+      "rule_id": "r120[++-]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, 1, -1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0501 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0501
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[++-]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 198,
+        "pairs_by_phase": {
+          "group": 198
+        },
+        "mean_shape_distance": 0.005066,
+        "mean_barrier": 0.1475,
+        "precondition_balanced_accuracy": 0.946,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0394
+      },
+      "example_pair_ids": [
+        "group-s000023-22bf192d",
+        "group-s000034-22bf192d",
+        "group-s000044-22bf192d"
+      ],
+      "legacy_rule_id": "r120_++-_+bulge_flip"
+    },
+    {
+      "rule_id": "r120[+++]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, 1, 1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.5361",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.5361
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r120[+++]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null,
+        "same_as_varaxis_class_change": "X"
+      },
+      "evidence": {
+        "support_pairs": 197,
+        "pairs_by_phase": {
+          "group": 197
+        },
+        "mean_shape_distance": 0.005066,
+        "mean_barrier": 0.1144,
+        "precondition_balanced_accuracy": 0.945,
+        "same_topology_fraction": 0.895,
+        "holds_on_random_primitives": 0.0396
+      },
+      "example_pair_ids": [
+        "group-s000023-29dfca66",
+        "group-s000034-29dfca66",
+        "group-s000044-29dfca66"
+      ],
+      "legacy_rule_id": "r120_+++_"
+    },
+    {
+      "rule_id": "r120[++-]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, 1, -1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx)",
+      "applies_when": "abs_bulge <= 0.0501 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0501
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r120[++-]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 197,
+        "pairs_by_phase": {
+          "group": 197
+        },
+        "mean_shape_distance": 0.005048,
+        "mean_barrier": 0.1131,
+        "precondition_balanced_accuracy": 0.946,
+        "same_topology_fraction": 0.9,
+        "holds_on_random_primitives": 0.0392
+      },
+      "example_pair_ids": [
+        "group-s000023-95a1cfaa",
+        "group-s000034-95a1cfaa",
+        "group-s000044-95a1cfaa"
+      ],
+      "legacy_rule_id": "r120_++-_"
+    },
+    {
+      "rule_id": "r120[-+-]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (-1, 1, -1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy)",
+      "applies_when": "abs_bulge <= 0.0771 and taper_dev <= 0.5934",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0771
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.5934
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r120[-+-]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 197,
+        "pairs_by_phase": {
+          "group": 197
+        },
+        "mean_shape_distance": 0.005066,
+        "mean_barrier": 0.1147,
+        "precondition_balanced_accuracy": 0.945,
+        "same_topology_fraction": 0.941,
+        "holds_on_random_primitives": 0.0394
+      },
+      "example_pair_ids": [
+        "group-s000023-c746bd3c",
+        "group-s000034-c746bd3c",
+        "group-s000044-c746bd3c"
+      ],
+      "legacy_rule_id": "r120_-+-_"
+    },
+    {
+      "rule_id": "r120[---]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (-1, -1, -1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx)",
+      "applies_when": "abs_bulge <= 0.0395 and taper_dev <= 0.4916",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0395
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4916
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[---]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null,
+        "same_as_varaxis_class_change": "Z"
+      },
+      "evidence": {
+        "support_pairs": 197,
+        "pairs_by_phase": {
+          "group": 196,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.005043,
+        "mean_barrier": 0.1135,
+        "precondition_balanced_accuracy": 0.95,
+        "same_topology_fraction": 0.824,
+        "holds_on_random_primitives": 0.0392
+      },
+      "example_pair_ids": [
+        "group-s000023-b46a3600",
+        "group-s000034-b46a3600",
+        "group-s000044-b46a3600"
+      ],
+      "legacy_rule_id": "r120_---_"
+    },
+    {
+      "rule_id": "r120[-+-]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (-1, 1, -1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0771 and taper_dev <= 0.5669",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0771
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.5669
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[-+-]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 197,
+        "pairs_by_phase": {
+          "group": 197
+        },
+        "mean_shape_distance": 0.005114,
+        "mean_barrier": 0.1468,
+        "precondition_balanced_accuracy": 0.944,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0394
+      },
+      "example_pair_ids": [
+        "group-s000023-7b7816a9",
+        "group-s000034-7b7816a9",
+        "group-s000044-7b7816a9"
+      ],
+      "legacy_rule_id": "r120_-+-_+taper_flip_y"
+    },
+    {
+      "rule_id": "r120[-++]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (-1, 1, 1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx)",
+      "applies_when": "abs_bulge <= 0.0501 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0501
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r120[-++]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 196,
+        "pairs_by_phase": {
+          "group": 196
+        },
+        "mean_shape_distance": 0.005012,
+        "mean_barrier": 0.1131,
+        "precondition_balanced_accuracy": 0.946,
+        "same_topology_fraction": 0.889,
+        "holds_on_random_primitives": 0.0394
+      },
+      "example_pair_ids": [
+        "group-s000023-55df7d63",
+        "group-s000034-55df7d63",
+        "group-s000044-55df7d63"
+      ],
+      "legacy_rule_id": "r120_-++_"
+    },
+    {
+      "rule_id": "r120[+++]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, 1, 1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.5361",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.5361
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[+++]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 196,
+        "pairs_by_phase": {
+          "group": 196
+        },
+        "mean_shape_distance": 0.005083,
+        "mean_barrier": 0.1466,
+        "precondition_balanced_accuracy": 0.945,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0396
+      },
+      "example_pair_ids": [
+        "group-s000023-bad18a0e",
+        "group-s000034-bad18a0e",
+        "group-s000044-bad18a0e"
+      ],
+      "legacy_rule_id": "r120_+++_+taper_flip_y"
+    },
+    {
+      "rule_id": "r120[++-]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, 1, -1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0501 and taper_dev <= 0.4742",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0501
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4742
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r120[++-]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 196,
+        "pairs_by_phase": {
+          "group": 196
+        },
+        "mean_shape_distance": 0.004962,
+        "mean_barrier": 0.1478,
+        "precondition_balanced_accuracy": 0.947,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0392
+      },
+      "example_pair_ids": [
+        "group-s000023-a3c313a1",
+        "group-s000034-a3c313a1",
+        "group-s000044-a3c313a1"
+      ],
+      "legacy_rule_id": "r120_++-_+taper_flip_y"
+    },
+    {
+      "rule_id": "r120[+-+]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, -1, 1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0395 and taper_dev <= 0.4916",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0395
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4916
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[+-+]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 195,
+        "pairs_by_phase": {
+          "group": 195
+        },
+        "mean_shape_distance": 0.005012,
+        "mean_barrier": 0.1484,
+        "precondition_balanced_accuracy": 0.95,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0392
+      },
+      "example_pair_ids": [
+        "group-s000023-156c1f4b",
+        "group-s000034-156c1f4b",
+        "group-s000044-156c1f4b"
+      ],
+      "legacy_rule_id": "r120_+-+_+bulge_flip"
+    },
+    {
+      "rule_id": "r120[+++]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, 1, 1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4841",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4841
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[+++]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 194,
+        "pairs_by_phase": {
+          "group": 193,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.004963,
+        "mean_barrier": 0.1461,
+        "precondition_balanced_accuracy": 0.947,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0388
+      },
+      "example_pair_ids": [
+        "group-s000023-cdfa9e85",
+        "group-s000034-cdfa9e85",
+        "group-s000044-cdfa9e85"
+      ],
+      "legacy_rule_id": "r120_+++_+bulge_flip"
+    },
+    {
+      "rule_id": "r120[+-+]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, -1, 1), compensating in the world rotation, sizes re-ordered to (sy, sz, sx); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0395 and taper_dev <= 0.4742",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0395
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4742
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r120[+-+]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          2,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 194,
+        "pairs_by_phase": {
+          "group": 194
+        },
+        "mean_shape_distance": 0.004918,
+        "mean_barrier": 0.1482,
+        "precondition_balanced_accuracy": 0.948,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0392
+      },
+      "example_pair_ids": [
+        "group-s000023-8102bb6a",
+        "group-s000034-8102bb6a",
+        "group-s000044-8102bb6a"
+      ],
+      "legacy_rule_id": "r120_+-+_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[0++]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, 1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0562 and taper_dev <= 0.3595",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0562
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.3595
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[0++]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 194,
+        "pairs_by_phase": {
+          "group": 193,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.005021,
+        "mean_barrier": 0.1666,
+        "precondition_balanced_accuracy": 0.938,
+        "same_topology_fraction": 0.0,
+        "holds_on_random_primitives": 0.0384
+      },
+      "example_pair_ids": [
+        "group-s000023-d16eb206",
+        "group-s000034-d16eb206",
+        "group-s000044-d16eb206"
+      ],
+      "legacy_rule_id": "r180_0++_+taper_flip_y"
+    },
+    {
+      "rule_id": "r120[+--]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (1, -1, -1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4841",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4841
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r120[+--]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 193,
+        "pairs_by_phase": {
+          "group": 193
+        },
+        "mean_shape_distance": 0.004968,
+        "mean_barrier": 0.1142,
+        "precondition_balanced_accuracy": 0.946,
+        "same_topology_fraction": 0.941,
+        "holds_on_random_primitives": 0.0386
+      },
+      "example_pair_ids": [
+        "group-s000023-82f50781",
+        "group-s000034-82f50781",
+        "group-s000044-82f50781"
+      ],
+      "legacy_rule_id": "r120_+--_"
+    },
+    {
+      "rule_id": "r120[--+]",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (-1, -1, 1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4841",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4841
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r120[--+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 193,
+        "pairs_by_phase": {
+          "group": 193
+        },
+        "mean_shape_distance": 0.004972,
+        "mean_barrier": 0.1144,
+        "precondition_balanced_accuracy": 0.946,
+        "same_topology_fraction": 0.941,
+        "holds_on_random_primitives": 0.0386
+      },
+      "example_pair_ids": [
+        "group-s000023-87f004ab",
+        "group-s000034-87f004ab",
+        "group-s000044-87f004ab"
+      ],
+      "legacy_rule_id": "r120_--+_"
+    },
+    {
+      "rule_id": "r120[-+-]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 120° about local (-1, 1, -1), compensating in the world rotation, sizes re-ordered to (sz, sx, sy); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4841",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4841
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r120[-+-]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          0,
+          1
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 193,
+        "pairs_by_phase": {
+          "group": 193
+        },
+        "mean_shape_distance": 0.004969,
+        "mean_barrier": 0.1465,
+        "precondition_balanced_accuracy": 0.947,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0388
+      },
+      "example_pair_ids": [
+        "group-s000023-d4c310ac",
+        "group-s000034-d4c310ac",
+        "group-s000044-d4c310ac"
+      ],
+      "legacy_rule_id": "r120_-+-_+bulge_flip"
+    },
+    {
+      "rule_id": "r180[0+-]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, -1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.3595",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.3595
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[0+-]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 193,
+        "pairs_by_phase": {
+          "group": 193
+        },
+        "mean_shape_distance": 0.005022,
+        "mean_barrier": 0.1672,
+        "precondition_balanced_accuracy": 0.939,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0382
+      },
+      "example_pair_ids": [
+        "group-s000023-1d87dcf4",
+        "group-s000034-1d87dcf4",
+        "group-s000044-1d87dcf4"
+      ],
+      "legacy_rule_id": "r180_0+-_+taper_flip_y"
+    },
+    {
+      "rule_id": "r180[0+-]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, -1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy)",
+      "applies_when": "abs_bulge <= 0.0562 and taper_dev <= 0.5361",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0562
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.5361
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[0+-]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 192,
+        "pairs_by_phase": {
+          "group": 192
+        },
+        "mean_shape_distance": 0.004927,
+        "mean_barrier": 0.1579,
+        "precondition_balanced_accuracy": 0.945,
+        "same_topology_fraction": 0.833,
+        "holds_on_random_primitives": 0.0382
+      },
+      "example_pair_ids": [
+        "group-s000023-4298d730",
+        "group-s000034-4298d730",
+        "group-s000044-4298d730"
+      ],
+      "legacy_rule_id": "r180_0+-_"
+    },
+    {
+      "rule_id": "r180[0++]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, 1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy)",
+      "applies_when": "abs_bulge <= 0.0562 and taper_dev <= 0.5361",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0562
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.5361
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[0++]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 191,
+        "pairs_by_phase": {
+          "group": 191
+        },
+        "mean_shape_distance": 0.004902,
+        "mean_barrier": 0.1581,
+        "precondition_balanced_accuracy": 0.945,
+        "same_topology_fraction": 0.833,
+        "holds_on_random_primitives": 0.0382
+      },
+      "example_pair_ids": [
+        "group-s000023-795c7a37",
+        "group-s000034-795c7a37",
+        "group-s000044-795c7a37"
+      ],
+      "legacy_rule_id": "r180_0++_"
+    },
+    {
+      "rule_id": "r90[0+0]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4742",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4742
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0+0]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 183,
+        "pairs_by_phase": {
+          "group": 183
+        },
+        "mean_shape_distance": 0.005025,
+        "mean_barrier": 0.1581,
+        "precondition_balanced_accuracy": 0.938,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "group-s000023-756c9a5d",
+        "group-s000034-756c9a5d",
+        "group-s000044-756c9a5d"
+      ],
+      "legacy_rule_id": "r90_0+0_+taper_flip_x"
+    },
+    {
+      "rule_id": "r90[+00]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local x, compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.1168 and taper_dev <= 0.3161",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.1168
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.3161
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r90[+00]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 182,
+        "pairs_by_phase": {
+          "group": 182
+        },
+        "mean_shape_distance": 0.005193,
+        "mean_barrier": 0.1956,
+        "precondition_balanced_accuracy": 0.93,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "group-s000023-4ce4ca27",
+        "group-s000034-4ce4ca27",
+        "group-s000044-4ce4ca27"
+      ],
+      "legacy_rule_id": "r90_+00_+taper_flip_y"
+    },
+    {
+      "rule_id": "r90[-00]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -x, compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.1168 and taper_dev <= 0.3161",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.1168
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.3161
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r90[-00]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 182,
+        "pairs_by_phase": {
+          "group": 182
+        },
+        "mean_shape_distance": 0.005205,
+        "mean_barrier": 0.1956,
+        "precondition_balanced_accuracy": 0.93,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "group-s000023-6639eeb4",
+        "group-s000034-6639eeb4",
+        "group-s000044-6639eeb4"
+      ],
+      "legacy_rule_id": "r90_-00_+taper_flip_y"
+    },
+    {
+      "rule_id": "r90[0-0]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4742",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4742
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0-0]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 182,
+        "pairs_by_phase": {
+          "group": 182
+        },
+        "mean_shape_distance": 0.005008,
+        "mean_barrier": 0.1581,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0402
+      },
+      "example_pair_ids": [
+        "group-s000023-30daa13d",
+        "group-s000034-30daa13d",
+        "group-s000044-30daa13d"
+      ],
+      "legacy_rule_id": "r90_0-0_+taper_flip_x"
+    },
+    {
+      "rule_id": "r180[0++]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (0, 1, 1), compensating in the world rotation, sizes re-ordered to (sx, sz, sy); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0562 and taper_dev <= 0.3595",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0562
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.3595
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r180[0++]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 171,
+        "pairs_by_phase": {
+          "group": 171
+        },
+        "mean_shape_distance": 0.005067,
+        "mean_barrier": 0.1588,
+        "precondition_balanced_accuracy": 0.938,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0384
+      },
+      "example_pair_ids": [
+        "group-s000023-3a910982",
+        "group-s000034-3a910982",
+        "group-s000044-3a910982"
+      ],
+      "legacy_rule_id": "r180_0++_+taper_flip_x"
+    },
+    {
+      "rule_id": "r90[+00]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local x, compensating in the world rotation, sizes re-ordered to (sx, sz, sy)",
+      "applies_when": "abs_bulge <= 0.1168 and taper_dev <= 0.4901",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.1168
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4901
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[+00]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 170,
+        "pairs_by_phase": {
+          "group": 170
+        },
+        "mean_shape_distance": 0.005049,
+        "mean_barrier": 0.1027,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": 0.714,
+        "holds_on_random_primitives": 0.0402
+      },
+      "example_pair_ids": [
+        "group-s000034-6954bd4b",
+        "group-s000044-6954bd4b",
+        "group-s000050-6954bd4b"
+      ],
+      "legacy_rule_id": "r90_+00_"
+    },
+    {
+      "rule_id": "r90[-00]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -x, compensating in the world rotation, sizes re-ordered to (sx, sz, sy)",
+      "applies_when": "abs_bulge <= 0.1168 and taper_dev <= 0.4901",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.1168
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4901
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[-00]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          2,
+          1
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 170,
+        "pairs_by_phase": {
+          "group": 170
+        },
+        "mean_shape_distance": 0.005047,
+        "mean_barrier": 0.1026,
+        "precondition_balanced_accuracy": 0.941,
+        "same_topology_fraction": 0.714,
+        "holds_on_random_primitives": 0.0404
+      },
+      "example_pair_ids": [
+        "group-s000034-c28c1b1d",
+        "group-s000044-c28c1b1d",
+        "group-s000050-c28c1b1d"
+      ],
+      "legacy_rule_id": "r90_-00_"
+    },
+    {
+      "rule_id": "r90[0+0]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0+0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 163,
+        "pairs_by_phase": {
+          "group": 161,
+          "compensated": 2
+        },
+        "mean_shape_distance": 0.004929,
+        "mean_barrier": 0.0927,
+        "precondition_balanced_accuracy": 0.937,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "compensated-s000157-4b48901d",
+        "compensated-s000184-4b48901d",
+        "group-s000023-75b2fb22"
+      ],
+      "legacy_rule_id": "r90_0+0_"
+    },
+    {
+      "rule_id": "r90[0-0]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0-0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 163,
+        "pairs_by_phase": {
+          "group": 163
+        },
+        "mean_shape_distance": 0.004979,
+        "mean_barrier": 0.0924,
+        "precondition_balanced_accuracy": 0.94,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0408
+      },
+      "example_pair_ids": [
+        "group-s000023-f96b1664",
+        "group-s000034-f96b1664",
+        "group-s000044-f96b1664"
+      ],
+      "legacy_rule_id": "r90_0-0_"
+    }
+  ],
+  "canonicalize_rules": [
+    {
+      "rule_id": "valley:aa_wrap",
+      "what_it_does": "axis-angle r -> (|r|-2π) r̂ (same rotation)",
+      "applies_when": "always",
+      "applies_when_struct": [],
+      "parameters_that_change": [
+        "rotation"
+      ],
+      "transform": {
+        "transform_id": "aa_wrap",
+        "type": "wrap",
+        "axis_angle_op": "wrap"
+      },
+      "evidence": {
+        "support_pairs": 5000,
+        "pairs_by_phase": {
+          "group": 5000
+        },
+        "mean_shape_distance": 0.0,
+        "mean_barrier": 0.0,
+        "precondition_balanced_accuracy": null,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 1.0
+      },
+      "example_pair_ids": [
+        "group-s000000-94ee0837",
+        "group-s000001-94ee0837",
+        "group-s000002-94ee0837"
+      ],
+      "legacy_rule_id": "valley_aa_wrap"
+    },
+    {
+      "rule_id": "valley:r180[+00]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local x, compensating in the world rotation; then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "(inner_rel <= 0.0532) or (taper_dev <= 0.2243)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0532
+          ]
+        ],
+        [
+          [
+            "taper_dev",
+            "<=",
+            0.2243
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[+00]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 877,
+        "pairs_by_phase": {
+          "group": 872,
+          "retrieval": 4,
+          "compensated": 1
+        },
+        "mean_shape_distance": 0.005506,
+        "mean_barrier": 0.0064,
+        "precondition_balanced_accuracy": 0.894,
+        "same_topology_fraction": 0.898,
+        "holds_on_random_primitives": 0.2086
+      },
+      "example_pair_ids": [
+        "compensated-s000289-6a1f27c6",
+        "group-s000009-a3c88d35",
+        "group-s000011-a3c88d35"
+      ],
+      "legacy_rule_id": "valley_r180_+00_+taper_flip_x"
+    },
+    {
+      "rule_id": "valley:r90[00+]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz)",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 458,
+        "pairs_by_phase": {
+          "group": 447,
+          "compensated": 9,
+          "sweep": 2
+        },
+        "mean_shape_distance": 0.000689,
+        "mean_barrier": 0.0235,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1676
+      },
+      "example_pair_ids": [
+        "compensated-s000021-94c3f5d9",
+        "compensated-s000050-b8dafd30",
+        "compensated-s000120-94c3f5d9"
+      ],
+      "legacy_rule_id": "valley_r90_00+_"
+    },
+    {
+      "rule_id": "valley:r90[00-]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz)",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00-]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 457,
+        "pairs_by_phase": {
+          "group": 448,
+          "compensated": 8,
+          "sweep": 1
+        },
+        "mean_shape_distance": 0.000691,
+        "mean_barrier": 0.0236,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1672
+      },
+      "example_pair_ids": [
+        "compensated-s000021-e9ae8815",
+        "compensated-s000050-523ca98e",
+        "compensated-s000095-e9ae8815"
+      ],
+      "legacy_rule_id": "valley_r90_00-_"
+    },
+    {
+      "rule_id": "valley:r180[00+]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation",
+      "applies_when": "abs_bulge <= 0.0562",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0562
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 408,
+        "pairs_by_phase": {
+          "group": 386,
+          "sweep": 16,
+          "compensated": 5,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.000744,
+        "mean_barrier": 0.0223,
+        "precondition_balanced_accuracy": 0.987,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.168
+      },
+      "example_pair_ids": [
+        "compensated-s000021-11b56acf",
+        "compensated-s000140-67a7bbcd",
+        "compensated-s000157-39619e54"
+      ],
+      "legacy_rule_id": "valley_r180_00+_"
+    },
+    {
+      "rule_id": "valley:sizeperm_zyx",
+      "what_it_does": "size permutation -> zyx, rotation unchanged",
+      "applies_when": "aniso_xz <= 0.0971",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_xz",
+            "<=",
+            0.0971
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "sizeperm_zyx",
+        "type": "perm",
+        "size_permutation": [
+          2,
+          1,
+          0
+        ]
+      },
+      "evidence": {
+        "support_pairs": 243,
+        "pairs_by_phase": {
+          "group": 243
+        },
+        "mean_shape_distance": 0.005606,
+        "mean_barrier": 0.0065,
+        "precondition_balanced_accuracy": 0.914,
+        "same_topology_fraction": 0.706,
+        "holds_on_random_primitives": 0.0528
+      },
+      "example_pair_ids": [
+        "group-s000002-a7388d82",
+        "group-s000043-a7388d82",
+        "group-s000054-a7388d82"
+      ],
+      "legacy_rule_id": "valley_sizeperm_zyx"
+    },
+    {
+      "rule_id": "valley:sizeperm_yxz",
+      "what_it_does": "size permutation -> yxz, rotation unchanged",
+      "applies_when": "aniso_xy <= 0.0453",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_xy",
+            "<=",
+            0.0453
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "sizeperm_yxz",
+        "type": "perm",
+        "size_permutation": [
+          1,
+          0,
+          2
+        ]
+      },
+      "evidence": {
+        "support_pairs": 133,
+        "pairs_by_phase": {
+          "group": 133
+        },
+        "mean_shape_distance": 0.006241,
+        "mean_barrier": 0.0063,
+        "precondition_balanced_accuracy": 0.991,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0323
+      },
+      "example_pair_ids": [
+        "group-s000017-7dc2dda6",
+        "group-s000040-7dc2dda6",
+        "group-s000044-7dc2dda6"
+      ],
+      "legacy_rule_id": "valley_sizeperm_yxz"
+    },
+    {
+      "rule_id": "valley:taper_flip_x",
+      "what_it_does": "turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "(inner_rel <= 0.0383) or (taper > 0.477)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0383
+          ]
+        ],
+        [
+          [
+            "taper",
+            ">",
+            0.477
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 97,
+        "pairs_by_phase": {
+          "group": 95,
+          "compensated": 2
+        },
+        "mean_shape_distance": 0.00021,
+        "mean_barrier": 0.0342,
+        "precondition_balanced_accuracy": 0.972,
+        "same_topology_fraction": 0.875,
+        "holds_on_random_primitives": 0.8418
+      },
+      "example_pair_ids": [
+        "compensated-s000182-1bad5bb6",
+        "compensated-s000182-1a31090c",
+        "group-s000023-e569933e"
+      ],
+      "legacy_rule_id": "valley_taper_flip_x"
+    },
+    {
+      "rule_id": "valley:sizeperm_xzy",
+      "what_it_does": "size permutation -> xzy, rotation unchanged",
+      "applies_when": "aniso_yz <= 0.0381",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0381
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_y",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "sizeperm_xzy",
+        "type": "perm",
+        "size_permutation": [
+          0,
+          2,
+          1
+        ]
+      },
+      "evidence": {
+        "support_pairs": 86,
+        "pairs_by_phase": {
+          "group": 86
+        },
+        "mean_shape_distance": 0.005452,
+        "mean_barrier": 0.0055,
+        "precondition_balanced_accuracy": 0.994,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0185
+      },
+      "example_pair_ids": [
+        "group-s000027-acb065fd",
+        "group-s000151-acb065fd",
+        "group-s000191-acb065fd"
+      ],
+      "legacy_rule_id": "valley_sizeperm_xzy"
+    },
+    {
+      "rule_id": "valley:r180[+00]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local x, compensating in the world rotation; then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "(inner_rel <= 0.0532) or (taper_dev <= 0.2243)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0532
+          ]
+        ],
+        [
+          [
+            "taper_dev",
+            "<=",
+            0.2243
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "dilate",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[+00]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 68,
+        "pairs_by_phase": {
+          "group": 60,
+          "compensated": 7,
+          "retrieval": 1
+        },
+        "mean_shape_distance": 0.002136,
+        "mean_barrier": 0.032,
+        "precondition_balanced_accuracy": 0.894,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.3402
+      },
+      "example_pair_ids": [
+        "compensated-s000004-11b56acf",
+        "compensated-s000044-11b56acf",
+        "compensated-s000118-11b56acf"
+      ],
+      "legacy_rule_id": "valley_r180_+00_+taper_flip_y"
+    },
+    {
+      "rule_id": "valley:r180[++0]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[++0]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 65,
+        "pairs_by_phase": {
+          "group": 59,
+          "compensated": 6
+        },
+        "mean_shape_distance": 0.001952,
+        "mean_barrier": 0.032,
+        "precondition_balanced_accuracy": 0.975,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.094
+      },
+      "example_pair_ids": [
+        "compensated-s000004-e9ae8815",
+        "compensated-s000044-e9ae8815",
+        "compensated-s000120-e9ae8815"
+      ],
+      "legacy_rule_id": "valley_r180_++0_+taper_flip_y"
+    },
+    {
+      "rule_id": "valley:r180[+-0]+taper_flip_y",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, -1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r180[+-0]+taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 62,
+        "pairs_by_phase": {
+          "group": 58,
+          "compensated": 4
+        },
+        "mean_shape_distance": 0.001936,
+        "mean_barrier": 0.0315,
+        "precondition_balanced_accuracy": 0.975,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.094
+      },
+      "example_pair_ids": [
+        "compensated-s000004-94c3f5d9",
+        "compensated-s000044-94c3f5d9",
+        "compensated-s000069-eb974556"
+      ],
+      "legacy_rule_id": "valley_r180_+-0_+taper_flip_y"
+    },
+    {
+      "rule_id": "valley:r180[+00]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local x, compensating in the world rotation",
+      "applies_when": "(inner_rel <= 0.0608) or (taper_dev <= 0.1797)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0608
+          ]
+        ],
+        [
+          [
+            "taper_dev",
+            "<=",
+            0.1797
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": "r180[+00]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 61,
+        "pairs_by_phase": {
+          "group": 53,
+          "sweep": 5,
+          "compensated": 3
+        },
+        "mean_shape_distance": 0.002106,
+        "mean_barrier": 0.0283,
+        "precondition_balanced_accuracy": 0.89,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.3324
+      },
+      "example_pair_ids": [
+        "compensated-s000023-c98b0d9a",
+        "compensated-s000104-d0b7dcad",
+        "compensated-s000295-c98b0d9a"
+      ],
+      "legacy_rule_id": "valley_r180_+00_"
+    },
+    {
+      "rule_id": "valley:r180[00+]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation; then negate bulge",
+      "applies_when": "always",
+      "applies_when_struct": [],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 58,
+        "pairs_by_phase": {
+          "group": 39,
+          "compensated": 15,
+          "retrieval": 4
+        },
+        "mean_shape_distance": 0.000749,
+        "mean_barrier": 0.0332,
+        "precondition_balanced_accuracy": null,
+        "same_topology_fraction": 0.947,
+        "holds_on_random_primitives": 1.0
+      },
+      "example_pair_ids": [
+        "compensated-s000029-11b56acf",
+        "compensated-s000034-76392870",
+        "compensated-s000081-11b56acf"
+      ],
+      "legacy_rule_id": "valley_r180_00+_+bulge_flip"
+    },
+    {
+      "rule_id": "valley:taper_flip_y",
+      "what_it_does": "turn the frustum upside down (180° about local y): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ, bulge negated",
+      "applies_when": "(inner_rel <= 0.0383) or (taper > 0.477)",
+      "applies_when_struct": [
+        [
+          [
+            "inner_rel",
+            "<=",
+            0.0383
+          ]
+        ],
+        [
+          [
+            "taper",
+            ">",
+            0.477
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "taper_flip_y",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "y"
+      },
+      "evidence": {
+        "support_pairs": 48,
+        "pairs_by_phase": {
+          "retrieval": 36,
+          "compensated": 11,
+          "group": 1
+        },
+        "mean_shape_distance": 0.00226,
+        "mean_barrier": 0.0193,
+        "precondition_balanced_accuracy": 0.972,
+        "same_topology_fraction": 0.787,
+        "holds_on_random_primitives": 0.8418
+      },
+      "example_pair_ids": [
+        "compensated-s000058-2c2a18ff",
+        "compensated-s000058-c0a03e75",
+        "compensated-s000090-d9577746"
+      ],
+      "legacy_rule_id": "valley_taper_flip_y"
+    },
+    {
+      "rule_id": "valley:r90[00+]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r90[00+]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 43,
+        "pairs_by_phase": {
+          "group": 38,
+          "compensated": 5
+        },
+        "mean_shape_distance": 0.00103,
+        "mean_barrier": 0.0331,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 0.8,
+        "holds_on_random_primitives": 0.1674
+      },
+      "example_pair_ids": [
+        "compensated-s000050-eb974556",
+        "compensated-s000081-94c3f5d9",
+        "compensated-s000095-94c3f5d9"
+      ],
+      "legacy_rule_id": "valley_r90_00+_+bulge_flip"
+    },
+    {
+      "rule_id": "valley:r180[++0]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, 1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[++0]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 43,
+        "pairs_by_phase": {
+          "group": 43
+        },
+        "mean_shape_distance": 0.004859,
+        "mean_barrier": 0.0178,
+        "precondition_balanced_accuracy": 0.975,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.094
+      },
+      "example_pair_ids": [
+        "group-s000034-99f38ccf",
+        "group-s000050-99f38ccf",
+        "group-s000081-99f38ccf"
+      ],
+      "legacy_rule_id": "valley_r180_++0_+taper_flip_x"
+    },
+    {
+      "rule_id": "valley:r180[+-0]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local (1, -1, 0), compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "size_x",
+        "size_y"
+      ],
+      "transform": {
+        "transform_id": "r180[+-0]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 43,
+        "pairs_by_phase": {
+          "group": 43
+        },
+        "mean_shape_distance": 0.00486,
+        "mean_barrier": 0.0178,
+        "precondition_balanced_accuracy": 0.975,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.094
+      },
+      "example_pair_ids": [
+        "group-s000034-b2b9941a",
+        "group-s000050-b2b9941a",
+        "group-s000081-b2b9941a"
+      ],
+      "legacy_rule_id": "valley_r180_+-0_+taper_flip_x"
+    },
+    {
+      "rule_id": "valley:r180[00+]+taper_flip_x",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local z, compensating in the world rotation; then turn the frustum upside down (180° about local x): taper -> 1/taper, base sx, sy shrink by 2δ with δ = (1 - taper)·min(sx, sy)/2, roundness reduced by δ",
+      "applies_when": "abs_bulge <= 0.0586 and taper > 0.3791",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0586
+          ],
+          [
+            "taper",
+            ">",
+            0.3791
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": "r180[00+]+taper_flip_x",
+        "type": "analytic",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": "x"
+      },
+      "evidence": {
+        "support_pairs": 42,
+        "pairs_by_phase": {
+          "group": 35,
+          "compensated": 4,
+          "retrieval": 3
+        },
+        "mean_shape_distance": 0.002934,
+        "mean_barrier": 0.0253,
+        "precondition_balanced_accuracy": 0.986,
+        "same_topology_fraction": 0.429,
+        "holds_on_random_primitives": 0.1522
+      },
+      "example_pair_ids": [
+        "compensated-s000130-58a354d6",
+        "compensated-s000130-1e33b9d2",
+        "compensated-s000130-1bad5bb6"
+      ],
+      "legacy_rule_id": "valley_r180_00+_+taper_flip_x"
+    },
+    {
+      "rule_id": "valley:r90[0+0]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0+0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 42,
+        "pairs_by_phase": {
+          "group": 42
+        },
+        "mean_shape_distance": 0.005282,
+        "mean_barrier": 0.0237,
+        "precondition_balanced_accuracy": 0.937,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0406
+      },
+      "example_pair_ids": [
+        "group-s000090-75b2fb22",
+        "group-s000156-75b2fb22",
+        "group-s000430-75b2fb22"
+      ],
+      "legacy_rule_id": "valley_r90_0+0_"
+    },
+    {
+      "rule_id": "valley:r90[0-0]",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -y, compensating in the world rotation, sizes re-ordered to (sz, sy, sx)",
+      "applies_when": "abs_bulge <= 0.0475 and taper_dev <= 0.4853",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0475
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.4853
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "size_x",
+        "size_z"
+      ],
+      "transform": {
+        "transform_id": "r90[0-0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "size_permutation": [
+          2,
+          1,
+          0
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 41,
+        "pairs_by_phase": {
+          "group": 41
+        },
+        "mean_shape_distance": 0.005164,
+        "mean_barrier": 0.0244,
+        "precondition_balanced_accuracy": 0.94,
+        "same_topology_fraction": null,
+        "holds_on_random_primitives": 0.0408
+      },
+      "example_pair_ids": [
+        "group-s000156-f96b1664",
+        "group-s000442-f96b1664",
+        "group-s000674-f96b1664"
+      ],
+      "legacy_rule_id": "valley_r90_0-0_"
+    },
+    {
+      "rule_id": "valley:r90[00-]+bulge_flip",
+      "what_it_does": "re-express the primitive in its own frame turned 90° about local -z, compensating in the world rotation, sizes re-ordered to (sy, sx, sz); then negate bulge",
+      "applies_when": "abs_bulge <= 0.0446",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0446
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "roundness",
+        "size_x"
+      ],
+      "transform": {
+        "transform_id": "r90[00-]+bulge_flip",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "size_permutation": [
+          1,
+          0,
+          2
+        ],
+        "negate_bulge": true,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 40,
+        "pairs_by_phase": {
+          "group": 39,
+          "compensated": 1
+        },
+        "mean_shape_distance": 0.00085,
+        "mean_barrier": 0.0335,
+        "precondition_balanced_accuracy": 0.996,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.1676
+      },
+      "example_pair_ids": [
+        "compensated-s000140-e9ae8815",
+        "group-s000034-f2cfd13f",
+        "group-s000050-f2cfd13f"
+      ],
+      "legacy_rule_id": "valley_r90_00-_+bulge_flip"
+    },
+    {
+      "rule_id": "valley:r180[0+0]",
+      "what_it_does": "re-express the primitive in its own frame turned 180° about local y, compensating in the world rotation",
+      "applies_when": "abs_bulge <= 0.0409 and taper_dev <= 0.2759",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            0.0409
+          ],
+          [
+            "taper_dev",
+            "<=",
+            0.2759
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation"
+      ],
+      "transform": {
+        "transform_id": "r180[0+0]",
+        "type": "group",
+        "local_rotation_matrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "size_permutation": [
+          0,
+          1,
+          2
+        ],
+        "negate_bulge": false,
+        "taper_flip_axis": null
+      },
+      "evidence": {
+        "support_pairs": 40,
+        "pairs_by_phase": {
+          "group": 40
+        },
+        "mean_shape_distance": 0.001773,
+        "mean_barrier": 0.0288,
+        "precondition_balanced_accuracy": 0.973,
+        "same_topology_fraction": 1.0,
+        "holds_on_random_primitives": 0.0938
+      },
+      "example_pair_ids": [
+        "group-s000646-056b2703",
+        "group-s001110-056b2703",
+        "group-s001134-056b2703"
+      ],
+      "legacy_rule_id": "valley_r180_0+0_"
+    }
+  ],
+  "approximate_rules": [
+    {
+      "rule_id": "onion+|rotation|taper-@retrieval",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_yz <= 0.0111",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0111
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 119,
+        "pairs_by_phase": {
+          "assembly": 119
+        },
+        "mean_shape_distance": 0.012987,
+        "mean_barrier": 0.0038,
+        "precondition_balanced_accuracy": 0.783,
+        "same_topology_fraction": 0.983,
+        "mean_assembly_delta_iou": 0.00108
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-6-retrieval-31",
+        "assembly-chair_145-6-retrieval-33",
+        "assembly-chair_145-6-retrieval-35"
+      ],
+      "legacy_rule_id": "mech_onion_|rotation|taper__retrieval"
+    },
+    {
+      "rule_id": "learned:bulge-|onion+|roundness-",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "abs_bulge <= 1.9188 and aniso_xy > 0.6748",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.9188
+          ],
+          [
+            "aniso_xy",
+            ">",
+            0.6748
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 88,
+        "pairs_by_phase": {
+          "retrieval": 88
+        },
+        "mean_shape_distance": 0.003413,
+        "mean_barrier": 0.2589,
+        "precondition_balanced_accuracy": 0.91,
+        "same_topology_fraction": 0.568
+      },
+      "example_pair_ids": [
+        "retrieval-b0037488-56b939a1",
+        "retrieval-b0071625-9cb21954",
+        "retrieval-b0037488-38de0431"
+      ],
+      "legacy_rule_id": "learned_bulge_|onion_|roundness_"
+    },
+    {
+      "rule_id": "learned:bulge+|onion+|roundness-",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "abs_bulge <= 1.9185 and aniso_xy > 0.8234",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.9185
+          ],
+          [
+            "aniso_xy",
+            ">",
+            0.8234
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 72,
+        "pairs_by_phase": {
+          "retrieval": 72
+        },
+        "mean_shape_distance": 0.003476,
+        "mean_barrier": 0.2845,
+        "precondition_balanced_accuracy": 0.881,
+        "same_topology_fraction": 0.375
+      },
+      "example_pair_ids": [
+        "retrieval-b0136762-d2cbc993",
+        "retrieval-b0074849-9497d63a",
+        "retrieval-b0083422-894e53f2"
+      ],
+      "legacy_rule_id": "learned_bulge_|onion_|roundness_"
+    },
+    {
+      "rule_id": "learned:onion-|roundness-|taper+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_xy > 0.8522 and taper <= 1.0946",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_xy",
+            ">",
+            0.8522
+          ],
+          [
+            "taper",
+            "<=",
+            1.0946
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 68,
+        "pairs_by_phase": {
+          "retrieval": 68
+        },
+        "mean_shape_distance": 0.002852,
+        "mean_barrier": 0.2725,
+        "precondition_balanced_accuracy": 0.886,
+        "same_topology_fraction": 0.676
+      },
+      "example_pair_ids": [
+        "retrieval-b0004937-41349be3",
+        "retrieval-b0078244-dce52779",
+        "retrieval-b0163588-bb5635be"
+      ],
+      "legacy_rule_id": "learned_onion_|roundness_|taper_"
+    },
+    {
+      "rule_id": "learned:onion+|roundness+|taper-",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "(abs_bulge <= 1.4395 and taper > 0.9993) or (aniso_xy > 0.9183 and taper <= 0.9993)",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.4395
+          ],
+          [
+            "taper",
+            ">",
+            0.9993
+          ]
+        ],
+        [
+          [
+            "aniso_xy",
+            ">",
+            0.9183
+          ],
+          [
+            "taper",
+            "<=",
+            0.9993
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 62,
+        "pairs_by_phase": {
+          "retrieval": 62
+        },
+        "mean_shape_distance": 0.002962,
+        "mean_barrier": 0.294,
+        "precondition_balanced_accuracy": 0.98,
+        "same_topology_fraction": 0.565
+      },
+      "example_pair_ids": [
+        "retrieval-b0157673-1ec0f1dd",
+        "retrieval-b0136584-2eb6f55e",
+        "retrieval-b0149516-e5d67382"
+      ],
+      "legacy_rule_id": "learned_onion_|roundness_|taper_"
+    },
+    {
+      "rule_id": "learned:onion+|roundness-|taper+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "abs_bulge <= 1.541 and aniso_xy > 0.6711",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.541
+          ],
+          [
+            "aniso_xy",
+            ">",
+            0.6711
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 60,
+        "pairs_by_phase": {
+          "retrieval": 60
+        },
+        "mean_shape_distance": 0.003608,
+        "mean_barrier": 0.2858,
+        "precondition_balanced_accuracy": 0.914,
+        "same_topology_fraction": 0.533
+      },
+      "example_pair_ids": [
+        "retrieval-b0102975-d33351e1",
+        "retrieval-b0151270-9918df73",
+        "retrieval-b0004524-b72db02b"
+      ],
+      "legacy_rule_id": "learned_onion_|roundness_|taper_"
+    },
+    {
+      "rule_id": "learned:bulge+|onion-|roundness+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "(abs_bulge <= 1.6679 and aniso_xy > 0.7236) or (aniso_xy <= 0.7236 and aniso_yz > 0.9354)",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.6679
+          ],
+          [
+            "aniso_xy",
+            ">",
+            0.7236
+          ]
+        ],
+        [
+          [
+            "aniso_xy",
+            "<=",
+            0.7236
+          ],
+          [
+            "aniso_yz",
+            ">",
+            0.9354
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 54,
+        "pairs_by_phase": {
+          "retrieval": 54
+        },
+        "mean_shape_distance": 0.002885,
+        "mean_barrier": 0.2546,
+        "precondition_balanced_accuracy": 0.924,
+        "same_topology_fraction": 0.778
+      },
+      "example_pair_ids": [
+        "retrieval-b0098951-5114929e",
+        "retrieval-b0125934-a251be1d",
+        "retrieval-b0025027-599dcf0b"
+      ],
+      "legacy_rule_id": "learned_bulge_|onion_|roundness_"
+    },
+    {
+      "rule_id": "onion+|rotation|taper+@retrieval",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_yz <= 0.0111",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0111
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 52,
+        "pairs_by_phase": {
+          "assembly": 52
+        },
+        "mean_shape_distance": 0.022961,
+        "mean_barrier": 0.0028,
+        "precondition_balanced_accuracy": 0.783,
+        "same_topology_fraction": 0.962,
+        "mean_assembly_delta_iou": 0.00175
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-2-retrieval-7",
+        "assembly-chair_145-4-retrieval-20",
+        "assembly-chair_145-14-retrieval-56"
+      ],
+      "legacy_rule_id": "mech_onion_|rotation|taper__retrieval"
+    },
+    {
+      "rule_id": "onion+|rotation|roundness-@retrieval",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_yz <= 0.0111",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0111
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 45,
+        "pairs_by_phase": {
+          "assembly": 45
+        },
+        "mean_shape_distance": 0.020397,
+        "mean_barrier": 0.0035,
+        "precondition_balanced_accuracy": 0.783,
+        "same_topology_fraction": 0.978,
+        "mean_assembly_delta_iou": 0.00021
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-3-retrieval-12",
+        "assembly-chair_145-3-retrieval-13",
+        "assembly-chair_145-3-retrieval-14"
+      ],
+      "legacy_rule_id": "mech_onion_|rotation|roundness__retrieval"
+    },
+    {
+      "rule_id": "onion-|rotation|taper+@rotation",
+      "what_it_does": "re-orient the primitive by a non-symmetry rotation while trading the listed shape parameters; approximate",
+      "applies_when": "(abs_bulge > 1.8009 and round_minus_inset > 0.1644) or (round_minus_inset <= 0.1644 and taper <= 0.8326)",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            ">",
+            1.8009
+          ],
+          [
+            "round_minus_inset",
+            ">",
+            0.1644
+          ]
+        ],
+        [
+          [
+            "round_minus_inset",
+            "<=",
+            0.1644
+          ],
+          [
+            "taper",
+            "<=",
+            0.8326
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "rotation",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "analytic_rotation",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 44,
+        "pairs_by_phase": {
+          "compensated": 30,
+          "assembly": 14
+        },
+        "mean_shape_distance": 0.006496,
+        "mean_barrier": 0.198,
+        "precondition_balanced_accuracy": 0.874,
+        "same_topology_fraction": 0.727,
+        "mean_assembly_delta_iou": 0.00113
+      },
+      "example_pair_ids": [
+        "assembly-cup_009-5-rotation-10",
+        "assembly-cup_009-5-rotation-11",
+        "assembly-glass_057-2-rotation-6"
+      ],
+      "legacy_rule_id": "mech_onion_|rotation|taper__rotation"
+    },
+    {
+      "rule_id": "bulge+|rotation|taper+@rotation",
+      "what_it_does": "re-orient the primitive by a non-symmetry rotation while trading the listed shape parameters; approximate",
+      "applies_when": "aniso_yz <= 0.8104 and taper <= 0.6654",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.8104
+          ],
+          [
+            "taper",
+            "<=",
+            0.6654
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "analytic_rotation",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 40,
+        "pairs_by_phase": {
+          "assembly": 22,
+          "compensated": 18
+        },
+        "mean_shape_distance": 0.006141,
+        "mean_barrier": 0.0925,
+        "precondition_balanced_accuracy": 0.911,
+        "same_topology_fraction": 0.925,
+        "mean_assembly_delta_iou": 0.00148
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-9-rotation-46",
+        "assembly-bottle_035-11-rotation-42",
+        "assembly-hat_015-7-rotation-22"
+      ],
+      "legacy_rule_id": "mech_bulge_|rotation|taper__rotation"
+    },
+    {
+      "rule_id": "bulge-|rotation|taper+@rotation",
+      "what_it_does": "re-orient the primitive by a non-symmetry rotation while trading the listed shape parameters; approximate",
+      "applies_when": "(aniso_xy <= 0.6661 and round_minus_inset <= 0.0378) or (round_minus_inset > 0.0378 and taper <= 0.5352)",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_xy",
+            "<=",
+            0.6661
+          ],
+          [
+            "round_minus_inset",
+            "<=",
+            0.0378
+          ]
+        ],
+        [
+          [
+            "round_minus_inset",
+            ">",
+            0.0378
+          ],
+          [
+            "taper",
+            "<=",
+            0.5352
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "rotation",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "analytic_rotation",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 37,
+        "pairs_by_phase": {
+          "assembly": 21,
+          "compensated": 16
+        },
+        "mean_shape_distance": 0.00667,
+        "mean_barrier": 0.0929,
+        "precondition_balanced_accuracy": 0.89,
+        "same_topology_fraction": 0.946,
+        "mean_assembly_delta_iou": 0.00116
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-3-rotation-10",
+        "assembly-chair_145-6-rotation-30",
+        "assembly-chair_145-14-rotation-55"
+      ],
+      "legacy_rule_id": "mech_bulge_|rotation|taper__rotation"
+    },
+    {
+      "rule_id": "rotation|roundness+|taper-@retrieval",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_yz <= 0.0111",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0111
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 37,
+        "pairs_by_phase": {
+          "assembly": 37
+        },
+        "mean_shape_distance": 0.016104,
+        "mean_barrier": 0.0021,
+        "precondition_balanced_accuracy": 0.783,
+        "same_topology_fraction": 0.892,
+        "mean_assembly_delta_iou": 0.00137
+      },
+      "example_pair_ids": [
+        "assembly-bowl_005-10-retrieval-29",
+        "assembly-bottle_035-15-retrieval-69",
+        "assembly-bottle_035-18-retrieval-81"
+      ],
+      "legacy_rule_id": "mech_rotation|roundness_|taper__retrieval"
+    },
+    {
+      "rule_id": "learned:onion-|roundness+|taper+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "(abs_bulge <= 1.3422 and aniso_yz > 0.9213) or (aniso_xy > 0.9378 and aniso_yz <= 0.9213)",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.3422
+          ],
+          [
+            "aniso_yz",
+            ">",
+            0.9213
+          ]
+        ],
+        [
+          [
+            "aniso_xy",
+            ">",
+            0.9378
+          ],
+          [
+            "aniso_yz",
+            "<=",
+            0.9213
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "onion",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 37,
+        "pairs_by_phase": {
+          "retrieval": 37
+        },
+        "mean_shape_distance": 0.003101,
+        "mean_barrier": 0.2795,
+        "precondition_balanced_accuracy": 0.981,
+        "same_topology_fraction": 0.676
+      },
+      "example_pair_ids": [
+        "retrieval-b0082198-d8ec7936",
+        "retrieval-b0127037-c35433db",
+        "retrieval-b0138043-0130176d"
+      ],
+      "legacy_rule_id": "learned_onion_|roundness_|taper_"
+    },
+    {
+      "rule_id": "learned:bulge-|roundness-|taper+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_xy > 0.8836 and roundness > 0.2296",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_xy",
+            ">",
+            0.8836
+          ],
+          [
+            "roundness",
+            ">",
+            0.2296
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 37,
+        "pairs_by_phase": {
+          "retrieval": 37
+        },
+        "mean_shape_distance": 0.00448,
+        "mean_barrier": 0.2436,
+        "precondition_balanced_accuracy": 0.901,
+        "same_topology_fraction": 0.405
+      },
+      "example_pair_ids": [
+        "retrieval-b0093421-60867608",
+        "retrieval-b0069221-8e8c23b6",
+        "retrieval-b0075148-9067cb7b"
+      ],
+      "legacy_rule_id": "learned_bulge_|roundness_|taper_"
+    },
+    {
+      "rule_id": "learned:bulge+|onion-|taper+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "(abs_bulge <= 1.4295 and aniso_xy > 0.4455) or (aniso_xy <= 0.4455 and aniso_yz > 0.9494)",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.4295
+          ],
+          [
+            "aniso_xy",
+            ">",
+            0.4455
+          ]
+        ],
+        [
+          [
+            "aniso_xy",
+            "<=",
+            0.4455
+          ],
+          [
+            "aniso_yz",
+            ">",
+            0.9494
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 37,
+        "pairs_by_phase": {
+          "retrieval": 37
+        },
+        "mean_shape_distance": 0.003573,
+        "mean_barrier": 0.2557,
+        "precondition_balanced_accuracy": 0.936,
+        "same_topology_fraction": 0.784
+      },
+      "example_pair_ids": [
+        "retrieval-b0009616-3a0d730d",
+        "retrieval-b0152468-3ab65310",
+        "retrieval-b0014531-b85d3ae1"
+      ],
+      "legacy_rule_id": "learned_bulge_|onion_|taper_"
+    },
+    {
+      "rule_id": "rotation|roundness-|taper+@rotation",
+      "what_it_does": "re-orient the primitive by a non-symmetry rotation while trading the listed shape parameters; approximate",
+      "applies_when": "(round_minus_inset <= 0.0136 and taper > 0.8409) or (roundness <= 0.8753 and taper <= 0.8409)",
+      "applies_when_struct": [
+        [
+          [
+            "round_minus_inset",
+            "<=",
+            0.0136
+          ],
+          [
+            "taper",
+            ">",
+            0.8409
+          ]
+        ],
+        [
+          [
+            "roundness",
+            "<=",
+            0.8753
+          ],
+          [
+            "taper",
+            "<=",
+            0.8409
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "analytic_rotation",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 36,
+        "pairs_by_phase": {
+          "compensated": 33,
+          "assembly": 3
+        },
+        "mean_shape_distance": 0.004209,
+        "mean_barrier": 0.1464,
+        "precondition_balanced_accuracy": 0.842,
+        "same_topology_fraction": 0.778,
+        "mean_assembly_delta_iou": -0.00027
+      },
+      "example_pair_ids": [
+        "assembly-helmet_004-6-rotation-23",
+        "assembly-bread_008-8-rotation-30",
+        "assembly-bread_008-8-rotation-31"
+      ],
+      "legacy_rule_id": "mech_rotation|roundness_|taper__rotation"
+    },
+    {
+      "rule_id": "learned:bulge+|roundness-|taper+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "(abs_bulge <= 1.3646 and aniso_xy > 0.807) or (aniso_xy <= 0.807 and onion > 0.9239)",
+      "applies_when_struct": [
+        [
+          [
+            "abs_bulge",
+            "<=",
+            1.3646
+          ],
+          [
+            "aniso_xy",
+            ">",
+            0.807
+          ]
+        ],
+        [
+          [
+            "aniso_xy",
+            "<=",
+            0.807
+          ],
+          [
+            "onion",
+            ">",
+            0.9239
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 34,
+        "pairs_by_phase": {
+          "retrieval": 34
+        },
+        "mean_shape_distance": 0.004162,
+        "mean_barrier": 0.2419,
+        "precondition_balanced_accuracy": 0.946,
+        "same_topology_fraction": 0.441
+      },
+      "example_pair_ids": [
+        "retrieval-b0091156-4e3bc8a1",
+        "retrieval-b0081221-f3956f38",
+        "retrieval-b0002730-eabf58b3"
+      ],
+      "legacy_rule_id": "learned_bulge_|roundness_|taper_"
+    },
+    {
+      "rule_id": "learned:bulge-|onion-|roundness+",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "(aniso_xy <= 0.8769 and aniso_yz > 0.9627) or (aniso_xy > 0.8769 and onion > 0.1384)",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_xy",
+            "<=",
+            0.8769
+          ],
+          [
+            "aniso_yz",
+            ">",
+            0.9627
+          ]
+        ],
+        [
+          [
+            "aniso_xy",
+            ">",
+            0.8769
+          ],
+          [
+            "onion",
+            ">",
+            0.1384
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "roundness"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 32,
+        "pairs_by_phase": {
+          "retrieval": 32
+        },
+        "mean_shape_distance": 0.002984,
+        "mean_barrier": 0.2424,
+        "precondition_balanced_accuracy": 0.929,
+        "same_topology_fraction": 0.719
+      },
+      "example_pair_ids": [
+        "retrieval-b0020618-2571b086",
+        "retrieval-b0049323-036a9243",
+        "retrieval-b0003762-26531ba1"
+      ],
+      "legacy_rule_id": "learned_bulge_|onion_|roundness_"
+    },
+    {
+      "rule_id": "bulge-|onion+|rotation@retrieval",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_yz <= 0.0111",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0111
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 31,
+        "pairs_by_phase": {
+          "assembly": 31
+        },
+        "mean_shape_distance": 0.014065,
+        "mean_barrier": 0.0034,
+        "precondition_balanced_accuracy": 0.783,
+        "same_topology_fraction": 1.0,
+        "mean_assembly_delta_iou": 0.00097
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-14-retrieval-59",
+        "assembly-bowl_005-2-retrieval-9",
+        "assembly-bowl_005-2-retrieval-11"
+      ],
+      "legacy_rule_id": "mech_bulge_|onion_|rotation_retrieval"
+    },
+    {
+      "rule_id": "rotation|roundness+|taper-@rotation",
+      "what_it_does": "re-orient the primitive by a non-symmetry rotation while trading the listed shape parameters; approximate",
+      "applies_when": "(aniso_yz <= 0.5098 and inner_rel <= 0.0272) or (inner_rel > 0.0272 and taper > 1.7513)",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.5098
+          ],
+          [
+            "inner_rel",
+            "<=",
+            0.0272
+          ]
+        ],
+        [
+          [
+            "inner_rel",
+            ">",
+            0.0272
+          ],
+          [
+            "taper",
+            ">",
+            1.7513
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "rotation",
+        "roundness",
+        "taper"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "analytic_rotation",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 30,
+        "pairs_by_phase": {
+          "assembly": 22,
+          "compensated": 8
+        },
+        "mean_shape_distance": 0.006115,
+        "mean_barrier": 0.056,
+        "precondition_balanced_accuracy": 0.929,
+        "same_topology_fraction": 0.967,
+        "mean_assembly_delta_iou": 0.00197
+      },
+      "example_pair_ids": [
+        "assembly-chair_145-1-rotation-5",
+        "assembly-chair_145-13-rotation-52",
+        "assembly-bowl_005-2-rotation-8"
+      ],
+      "legacy_rule_id": "mech_rotation|roundness_|taper__rotation"
+    },
+    {
+      "rule_id": "bulge+|onion+|rotation@retrieval",
+      "what_it_does": "trade the listed shape parameters against each other (fitted from example pairs); approximate",
+      "applies_when": "aniso_yz <= 0.0111",
+      "applies_when_struct": [
+        [
+          [
+            "aniso_yz",
+            "<=",
+            0.0111
+          ]
+        ]
+      ],
+      "parameters_that_change": [
+        "bulge",
+        "onion",
+        "rotation"
+      ],
+      "transform": {
+        "transform_id": null,
+        "type": "learned_affine",
+        "map_exported": false,
+        "reason": "fitted map not reliable in this run (id collision in Phase 5); refit from this rule's pairs"
+      },
+      "evidence": {
+        "support_pairs": 30,
+        "pairs_by_phase": {
+          "assembly": 30
+        },
+        "mean_shape_distance": 0.011952,
+        "mean_barrier": 0.0034,
+        "precondition_balanced_accuracy": 0.783,
+        "same_topology_fraction": 0.867,
+        "mean_assembly_delta_iou": 0.00126
+      },
+      "example_pair_ids": [
+        "assembly-bowl_005-3-retrieval-14",
+        "assembly-snake_015-1-retrieval-5",
+        "assembly-sofa_016-15-retrieval-48"
+      ],
+      "legacy_rule_id": "mech_bulge_|onion_|rotation_retrieval"
+    }
+  ],
+  "assembly_level": {
+    "rule_id": "prim_swap",
+    "what_it_does": "swap the order of two overlapping primitives in the smooth-union assembly",
+    "support_pairs": 156,
+    "example_pair_ids": [
+      "assembly-chair_145-1-prim_swap-68",
+      "assembly-chair_145-14-prim_swap-79",
+      "assembly-bowl_005-6-prim_swap-42"
+    ]
+  }
+}

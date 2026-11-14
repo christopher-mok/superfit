@@ -78,6 +78,9 @@ def _rows_features(df):
 
 
 def _rule_id(s):
+    # keep the direction of each mechanism (↑/↓): without it opposite swaps collapse to one id and
+    # their learned maps overwrite each other in the registry
+    s = s.replace("↑", "+").replace("↓", "-")
     return re.sub(r"[^A-Za-z0-9_+\-|.]", "_", s)[:80]
 
 
